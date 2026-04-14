@@ -1,0 +1,31 @@
+language: en-US
+reviews:
+  auto_review:
+    enabled: true
+    drafts: false
+  ignore_formatting: true
+  path_instructions:
+    - path: 'src/**/*.{ts,tsx}'
+      instructions: |
+        Review for:
+        - FSD boundary violations: no direct import from another feature/entity/widget slice internal path.
+          All cross-slice imports must go through the slice's public API (index.ts barrel file).
+          e.g., `import { SomeComponent } from '@/features/some-feature'` is correct;
+          `import SomeComponent from '@/features/some-feature/ui/SomeComponent'` is a violation.
+        - Missing 'use client' directive in components that use hooks, browser APIs, or event handlers.
+        - React Server Component / Client Component boundary violations.
+        - TypeScript: avoid `any` and `unknown` without explicit narrowing.
+        - Unvalidated external input (API responses, form data) without Zod or equivalent schema validation.
+        - Performance: large imports from barrel files that could cause bundle bloat.
+        - Security: hardcoded secrets, unsafe innerHTML, unvalidated redirects.
+        - Do NOT comment on code formatting (indentation, spacing, line length).
+          Formatting is owned by Prettier.
+    - path: 'src/**/*.test.{ts,tsx}'
+      instructions: |
+        Review for:
+        - Test coverage of happy path and at least one error path per public function.
+        - Mocking strategy: prefer msw over manual fetch mocks.
+        - Avoid testing implementation details; test observable behavior.
+        - Do NOT comment on formatting.
+chat:
+  auto_reply: true

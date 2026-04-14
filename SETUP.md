@@ -41,22 +41,34 @@ Ask the human for `{{PROJECT_NAME}}` (the GitHub repository name) before running
 gh auth status || exit 1
 mkdir {{PROJECT_NAME}} && cd {{PROJECT_NAME}}
 git init -b main
-echo "20" > .nvmrc
 gh repo create {{PROJECT_NAME}} --private --source=. --remote=origin
+# Note: .nvmrc is created in Phase 1 AFTER create-next-app, because
+# create-next-app refuses to scaffold into a non-empty directory.
 ```
 
-**Order note**: `.nvmrc` MUST be created after `cd {{PROJECT_NAME}}` AND after `git init`
-to ensure the file is placed in the project root.
+**Order note**: do NOT create `.nvmrc` before Phase 1 — `create-next-app`
+aborts if the target directory contains any files.
 
 ## 4. Phase 1 — Scaffolding
 
 ```bash
 npx create-next-app@latest . --ts --app --tailwind --eslint=false \
-  --src-dir --import-alias "@/*"
+  --src-dir --import-alias "@/*" --no-turbopack --use-npm
+
+# After scaffold: create .nvmrc (deferred from Phase 0)
+echo "20" > .nvmrc
 ```
 
 > `--src-dir` creates a `src/` directory. FSD layers live under `src/`.
 > `--eslint=false` skips Next.js default ESLint config — we install ESLint 9 flat config manually in Phase 3.
+> `--no-turbopack` keeps the bundler compatible with tooling examples in this template.
+> `--use-npm` pins the lockfile format across contributors.
+
+**Next 16 caveat**: create-next-app 16+ generates its own `CLAUDE.md` that
+just re-exports `@AGENTS.md`. The template's `CLAUDE.md` (with project
+overview, tech stack, and architecture pointers) is overwritten. After
+Phase 1, restore the template `CLAUDE.md` from this repo and substitute
+`{{PROJECT_NAME}}`.
 
 ## 4.5 Phase 1.5 — FSD Directory Scaffold
 
@@ -109,7 +121,7 @@ Write the following config files (exact content in Appendix § Config Reference)
 - `.prettierignore` — files Prettier should skip
 - `eslint.config.mjs` — ESLint 9 flat config with FSD boundary rules
 - `jest.config.ts` — Jest 29 + ts-jest config (`setupFilesAfterEnv`)
-- `commitlint.config.js` — Conventional Commits enforcement
+- `commitlint.config.mjs` — Conventional Commits enforcement (must be `.mjs`; `wagoid/commitlint-github-action@v6` rejects `.js` since 6.2)
 - `.lintstagedrc.json` — lint-staged per-extension commands
 - `.husky/pre-commit` — runs `npx lint-staged`
 - `.husky/commit-msg` — runs `npx --no -- commitlint --edit "$1"`
@@ -146,7 +158,7 @@ Merge the following into the `"scripts"` section of `package.json`
     "start": "next start",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "next lint",
+    "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -156,6 +168,9 @@ Merge the following into the `"scripts"` section of `package.json`
   }
 }
 ```
+
+> **Next 16 note**: `next lint` was removed in Next.js 16. Use `eslint`
+> directly (shown above). Do NOT use `"lint": "next lint"`.
 
 ## 8. Phase 5 — CI Workflow
 
@@ -207,7 +222,13 @@ git diff --quiet && git diff --cached --quiet || {
 
 ### 11.2 Push + watch CI
 
+CI triggers on `push: [main, feat/**, fix/**, refactor/**]` and on
+`pull_request: [main]`. On a brand-new repo created via `gh repo create
+--source=. --remote=origin`, the remote has no branches yet. Seed `main`
+by pushing the feature-branch commit directly into `main` on first push:
+
 ```bash
+git push origin $(git rev-parse --abbrev-ref HEAD):main
 git push -u origin $(git rev-parse --abbrev-ref HEAD)
 gh run watch
 ```
@@ -283,9 +304,19 @@ public/
 ```
 
 #### `eslint.config.mjs`
+
+**Next 16 compatibility**: `eslint-config-next` 16 exports flat configs
+directly (`eslint-config-next/core-web-vitals`, `eslint-config-next/typescript`).
+Using `FlatCompat.extends('next/...')` on these now throws
+`TypeError: Converting circular structure to JSON`. Import them directly
+and only use `FlatCompat.plugins()` for legacy plugins (`eslint-plugin-fsd-lint`).
+
 ```js
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTs from 'eslint-config-next/typescript';
 import { FlatCompat } from '@eslint/eslintrc';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -295,9 +326,9 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
-/** @type {import('eslint').Linter.Config[]} */
-const eslintConfig = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
   ...compat.plugins('fsd-lint'),
   {
     rules: {
@@ -306,12 +337,14 @@ const eslintConfig = [
       'fsd-lint/no-public-api-sidestep': 'error',
     },
   },
-  {
-    rules: {
-      'import/prefer-default-export': 'off',
-    },
-  },
-];
+  globalIgnores([
+    '.next/**',
+    'out/**',
+    'build/**',
+    'coverage/**',
+    'next-env.d.ts',
+  ]),
+]);
 
 export default eslintConfig;
 ```
@@ -337,7 +370,7 @@ const config: Config = {
     ],
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-  testPathPattern: ['<rootDir>/src/**/*.test.{ts,tsx}'],
+  testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}'],
   collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'],
 };
 
@@ -346,10 +379,15 @@ export default config;
 
 **Important**: The Jest config key is `setupFilesAfterEnv` (NOT `setupFilesAfterFramework`).
 
-#### `commitlint.config.js`
+#### `commitlint.config.mjs`
+
+> **Must be `.mjs`**: `wagoid/commitlint-github-action@v6` rejects `.js`
+> extensions with `.js extension is not allowed for the configFile, please
+> use .mjs instead`. Use ESM `export default` syntax.
+
 ```js
 /** @type {import('@commitlint/types').UserConfig} */
-module.exports = {
+export default {
   extends: ['@commitlint/config-conventional'],
   rules: {
     'type-enum': [
@@ -364,6 +402,9 @@ module.exports = {
 };
 ```
 
+Update `.github/workflows/ci.yml` step accordingly:
+`configFile: commitlint.config.mjs`
+
 #### `.lintstagedrc.json`
 ```json
 {
@@ -373,18 +414,16 @@ module.exports = {
 ```
 
 #### `.husky/pre-commit`
-```sh
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
 
+> Husky 9 removed the legacy `husky.sh` sourcing. Hook files are now plain
+> commands — do NOT add shebang or source lines; Husky will warn if present.
+
+```sh
 npx lint-staged
 ```
 
 #### `.husky/commit-msg`
 ```sh
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 npx --no -- commitlint --edit "$1"
 ```
 
@@ -459,7 +498,7 @@ Merge these options into your project's `tsconfig.json` `compilerOptions`.
     "start": "next start",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "next lint",
+    "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -518,7 +557,7 @@ jobs:
       - name: Validate commit messages
         uses: wagoid/commitlint-github-action@v6
         with:
-          configFile: commitlint.config.js
+          configFile: commitlint.config.mjs
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

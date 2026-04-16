@@ -7,8 +7,8 @@ After any code change, run the full verification loop in this exact order (fail-
 ```bash
 npm run format:check    # format check  — Prettier
 npm run typecheck       # type check    — tsc --noEmit
-                        # no separate static analysis step
-npm run lint            # lint          — ESLint 9 (includes FSD boundary rules)
+npm run depcruise       # architecture  — Dependency Cruiser (infra isolation + cross-feature)
+npm run lint            # lint          — ESLint 9
 npm run test            # tests         — Jest + ts-jest
 npm run build           # build         — next build
 ```
@@ -19,7 +19,7 @@ Or run all at once:
 npm run verify
 ```
 
-(`npm run verify` = format:check && typecheck && lint && test && build — defined in package.json)
+(`npm run verify` = format:check && typecheck && depcruise && lint && test && build — defined in package.json)
 
 If the **test** step fails, consult `.claude/rules/test-modification.md` to determine
 which tests need updating based on the code change type, then re-run the loop.
@@ -44,6 +44,7 @@ The local verification loop MUST match the CI workflow (`.github/workflows/ci.ym
 |------|--------------|--------------|
 | Format | `npm run format:check` | Format check |
 | Typecheck | `npm run typecheck` | Type check |
+| Architecture | `npm run depcruise` | Architecture boundary check |
 | Lint | `npm run lint` | Lint |
 | Test | `npm run test` | Test |
 | Build | `npm run build` | Build |

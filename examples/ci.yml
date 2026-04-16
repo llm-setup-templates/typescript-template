@@ -37,6 +37,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Architecture boundary check
+        run: npm run depcruise
+
       - name: Test
         run: npm run test
 

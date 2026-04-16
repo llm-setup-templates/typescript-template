@@ -21,6 +21,7 @@ const eslintConfig = defineConfig([
       'fsd-lint/forbidden-imports': 'error',
       'fsd-lint/no-relative-imports': 'error',
       'fsd-lint/no-public-api-sidestep': 'error',
+      'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
     },
   },
   globalIgnores([

@@ -5,10 +5,14 @@
 ```
 src/
 ├── shared/          # Reusable primitives — no business logic
-│   ├── ui/          # Generic UI components (Button, Input, Modal, …)
-│   ├── lib/         # Utility functions, helpers
+│   ├── ui/          # Generic UI components
+│   ├── lib/         # Utility functions
+│   │   ├── errors.ts         # AppError class (route handler try-catch)
+│   │   ├── errorResponse.ts  # Error response helper (NextResponse.json shorthand)
+│   │   ├── apiHandler.ts     # (Optional) HOF — reduce boilerplate if desired
+│   │   └── logger.ts         # (Optional) Structured logger — for production deployments
 │   ├── config/      # App-level configuration constants
-│   ├── api/         # Low-level API client (axios instance, fetch wrapper)
+│   ├── api/         # Low-level API client (fetch wrapper)
 │   └── model/       # Shared TypeScript types / Zod schemas
 ├── entities/        # Business entities (User, Product, Order, …)
 ├── features/        # User-facing features (auth, checkout, search, …)
@@ -80,6 +84,39 @@ Circular imports are **absolutely prohibited** at any level.
 | app            | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 **Intra** = within the same slice, relative imports allowed.
+
+## [CRITICAL] AI Agent Architectural Constraints — TypeScript / Next.js
+
+### 1. Response Pattern (Next.js standard — different from Spring/FastAPI!)
+- Success: `NextResponse.json(data)` **direct return** — no `ApiResponse<T>` wrapper needed.
+- Error: `NextResponse.json({ error, message }, { status })` — consistent error shape.
+- Route Handler error handling — two patterns (both allowed):
+  - **Pattern A (standard)**: try-catch inside route handler + NextResponse return
+  - **Pattern B (optional)**: `apiHandler` HOF — reduces repetitive boilerplate
+- Use `AppError` class for error categorization in try-catch blocks.
+
+### 2. Layer Dependency Isolation
+- FSD layers enforced by eslint-plugin-fsd-lint.
+- Infrastructure isolation (Dependency Cruiser when configured):
+  - `entities/` and `features/` MUST NOT import Prisma, Drizzle, `pg`, or DB drivers.
+  - DB access: via Server Actions or `shared/api/` repository functions.
+  - Features MUST NOT cross-import other features.
+
+### 3. Observability
+- `console.log/warn/error` allowed (Next.js server-side default, Vercel auto-collects).
+- For production structured logging, use `shared/lib/logger.ts` (optional).
+- ESLint `no-console: warn` — encourages cleanup before commit.
+
+### 4. Required Execution Sequence
+1. IDENTIFY: which FSD layer?
+2. SEARCH: check existing patterns.
+3. VERIFY: `npx depcruise src` + ESLint FSD rules.
+4. PUBLIC API: import through barrel `index.ts` only.
+
+### 5. Zod Schema Convention
+- Server Actions and Route Handlers validate input with Zod (Next.js official).
+- `schema.parse()` for hard validation, `.safeParse()` for Server Actions form validation.
+- NEVER use `as` type assertions to bypass Zod validation.
 
 ## Universal Principles
 - Dependency direction: outer layers import from inner layers, never reverse.

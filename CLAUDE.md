@@ -34,12 +34,7 @@ llm-setup-prompts/typescript-template. Architecture follows Feature-Sliced Desig
 
 ## Architecture Summary
 
-This project uses Feature-Sliced Design (FSD) with 5 layers:
-`shared → entities → features → widgets → app`.
-Each layer may only import from lower layers.
-Every FSD slice exposes its public API through `index.ts` (barrel file) only.
-Direct imports into a slice's internal files are prohibited (`no-public-api-sidestep`).
-See `.claude/rules/architecture.md` for full rules and examples.
+This project uses Feature-Sliced Design (FSD) with 5 layers: `shared → entities → features → widgets → app`. **Route Handlers return data directly via `NextResponse.json()`** (no wrapper). Error handling: `AppError` class + `errorResponse()` helper, or optional `apiHandler` HOF for boilerplate reduction. Request validation uses **Zod schemas** (`.parse()`/`.safeParse()` — Next.js official recommendation). Infrastructure isolation (DB drivers, ORMs) enforced by Dependency Cruiser (see `examples/.dependency-cruiser.cjs`). See `.claude/rules/architecture.md` for full rules.
 
 ## Verification Rules
 

@@ -121,6 +121,7 @@ Write the following config files (exact content in Appendix § Config Reference)
 - `.prettierignore` — files Prettier should skip
 - `eslint.config.mjs` — ESLint 9 flat config with FSD boundary rules
 - `jest.config.ts` — Jest 29 + ts-jest config (`setupFilesAfterEnv`)
+- `jest.setup.ts` — Jest setup file (referenced by `setupFilesAfterEnv` in jest.config.ts)
 - `commitlint.config.mjs` — Conventional Commits enforcement (must be `.mjs`; `wagoid/commitlint-github-action@v6` rejects `.js` since 6.2)
 - `.lintstagedrc.json` — lint-staged per-extension commands
 - `.husky/pre-commit` — runs `npx lint-staged`
@@ -213,7 +214,18 @@ All checks must pass before Phase 8.
 
 ## 11. Phase 8 — First Push + CI Green
 
-### 11.1 Git Safety Gate (MANDATORY — run before push)
+### 11.1 Initial commit (required before Gate 1)
+
+Gate 1 calls `git rev-parse --abbrev-ref HEAD` which requires at least
+one commit to exist. On a fresh `git init` repo there is no HEAD yet,
+so stage and commit all scaffolded files first:
+
+```bash
+git add .
+git commit -m "feat(scaffold): initial project setup"
+```
+
+### 11.2 Git Safety Gate (MANDATORY — run before push)
 
 ```bash
 # Gate 1: branch check
@@ -240,7 +252,7 @@ git diff --quiet && git diff --cached --quiet || {
 }
 ```
 
-### 11.2 Push + watch CI
+### 11.3 Push + watch CI
 
 CI triggers on `push: [main, feat/**, fix/**, refactor/**]` and on
 `pull_request: [main]`. On a brand-new repo created via `gh repo create
@@ -253,7 +265,7 @@ git push -u origin $(git rev-parse --abbrev-ref HEAD)
 gh run watch
 ```
 
-### 11.3 Success Declaration
+### 11.4 Success Declaration
 
 Only after `gh run watch` reports all jobs green, you may report the task
 as complete to the human.
@@ -398,6 +410,16 @@ export default config;
 ```
 
 **Important**: The Jest config key is `setupFilesAfterEnv` (NOT `setupFilesAfterFramework`).
+
+#### `jest.setup.ts`
+
+```ts
+import '@testing-library/jest-dom';
+```
+
+This file is referenced by `setupFilesAfterEnv` in `jest.config.ts`.
+It runs before every test file. Add global test utilities, custom matchers,
+or polyfills here as the project grows.
 
 #### `commitlint.config.mjs`
 

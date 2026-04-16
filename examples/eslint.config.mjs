@@ -1,5 +1,8 @@
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTs from 'eslint-config-next/typescript';
 import { FlatCompat } from '@eslint/eslintrc';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -9,13 +12,9 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
-/** @type {import('eslint').Linter.Config[]} */
-const eslintConfig = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
-  // FSD boundary rules
-  // eslint-plugin-fsd-lint: if flat config is not natively supported,
-  // use compat.plugins('fsd-lint') wrapper below.
-  // Verify support in https://github.com/conarti/eslint-plugin-fsd before executing.
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
   ...compat.plugins('fsd-lint'),
   {
     rules: {
@@ -24,14 +23,13 @@ const eslintConfig = [
       'fsd-lint/no-public-api-sidestep': 'error',
     },
   },
-  {
-    rules: {
-      // Components and pages must use default export
-      'import/prefer-default-export': 'off',
-      // Enforce default export in component files
-      // (apply selectively via overrides if needed)
-    },
-  },
-];
+  globalIgnores([
+    '.next/**',
+    'out/**',
+    'build/**',
+    'coverage/**',
+    'next-env.d.ts',
+  ]),
+]);
 
 export default eslintConfig;

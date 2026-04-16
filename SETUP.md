@@ -121,6 +121,7 @@ Write the following config files (exact content in Appendix § Config Reference)
 - `.prettierignore` — files Prettier should skip
 - `eslint.config.mjs` — ESLint 9 flat config with FSD boundary rules
 - `jest.config.ts` — Jest 29 + ts-jest config (`setupFilesAfterEnv`)
+- `jest.setup.ts` — Jest setup file (referenced by `setupFilesAfterEnv` in jest.config.ts)
 - `commitlint.config.mjs` — Conventional Commits enforcement (must be `.mjs`; `wagoid/commitlint-github-action@v6` rejects `.js` since 6.2)
 - `.lintstagedrc.json` — lint-staged per-extension commands
 - `.husky/pre-commit` — runs `npx lint-staged`
@@ -409,6 +410,16 @@ export default config;
 ```
 
 **Important**: The Jest config key is `setupFilesAfterEnv` (NOT `setupFilesAfterFramework`).
+
+#### `jest.setup.ts`
+
+```ts
+import '@testing-library/jest-dom';
+```
+
+This file is referenced by `setupFilesAfterEnv` in `jest.config.ts`.
+It runs before every test file. Add global test utilities, custom matchers,
+or polyfills here as the project grows.
 
 #### `commitlint.config.mjs`
 

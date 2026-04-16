@@ -47,6 +47,20 @@ After any code change, run `npm run verify` (or the individual steps in order).
 Never declare a task complete until the full loop passes.
 See `.claude/rules/verification-loop.md`.
 
+## Test Modification
+
+When modifying code, always update tests in the same commit. Determine affected test layers:
+
+- **Route/component added** → create unit + snapshot tests
+- **Signature/schema changed** → update existing assertions and fixtures
+- **Logic modified** → update assertions, add edge cases
+- **Dependency bumped** → review snapshot diff before `npm test -- -u`
+- **Refactoring only** → do NOT touch tests; if they break, the refactoring is wrong
+
+Snapshot rule: **never `npm test -- -u` without reading the diff first**.
+
+Full rules and checklist: `.claude/rules/test-modification.md`
+
 ## Git Workflow
 
 - Never commit directly to `main`

@@ -128,9 +128,9 @@ Write the following config files (exact content in Appendix § Config Reference)
 - `.husky/commit-msg` — runs `npx --no -- commitlint --edit "$1"`
 - `.gitattributes` — enforces LF line endings
 - `.gitignore` — standard Next.js ignores
-- `tsconfig.json` — merge `tsconfig.strict-additions.json` options into `compilerOptions`
+- `tsconfig.json` — merge `tsconfig.strict-additions.json` options into `compilerOptions`, and add `"examples"` to the `"exclude"` array
 
-Merge `examples/tsconfig.strict-additions.json` into your project's `tsconfig.json`:
+Merge `examples/tsconfig.strict-additions.json` into your project's `tsconfig.json` and exclude `examples/` from type checking:
 ```json
 {
   "compilerOptions": {
@@ -375,6 +375,7 @@ const eslintConfig = defineConfig([
     'build/**',
     'coverage/**',
     'next-env.d.ts',
+    'examples/**',
   ]),
 ]);
 

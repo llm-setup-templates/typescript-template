@@ -195,6 +195,105 @@ exist yet, so the `mkdir -p` is required before using plain `echo >`
 or `cat > .github/workflows/ci.yml` in an agent that shells out for
 file writes.
 
+## 8.5 Phase 5.5 — Documentation Scaffold
+
+This phase installs the documentation tree and GitHub governance files.
+
+### How installation works
+
+When a project is created with `gh repo create --template
+llm-setup-templates/typescript-template` (or by forking this repo), the
+following are **already present in the working directory**:
+
+```
+.github/
+├── ISSUE_TEMPLATE/{feature,bug,adr,config}.yml
+├── PULL_REQUEST_TEMPLATE.md
+└── CODEOWNERS                          # placeholder — customize
+
+docs/
+├── README.md                           # decision tree + navigation
+├── requirements/
+│   ├── RTM.md
+│   └── _FR-template.md
+├── architecture/
+│   ├── overview.md                     # C4 Lv1 (Core)
+│   ├── containers.md                   # C4 Lv2 (Extended)
+│   ├── DFD.md                          # Data Flow Diagram (Extended)
+│   └── decisions/
+│       ├── README.md
+│       ├── _ADR-template.md
+│       └── _RFC-template.md
+├── reports/                            # opt-in module
+│   ├── README.md
+│   ├── _spike-test-template.md
+│   ├── _benchmark-template.md
+│   ├── _api-analysis-template.md
+│   └── _paar-template.md
+├── briefings/                          # opt-in module
+│   ├── README.md
+│   └── _template/
+└── data/
+    └── dictionary.md                   # Extended module
+```
+
+The agent's job is not to generate these files — they ship with the
+template. The agent's job is to **trim modules the human doesn't want**,
+customize **placeholders**, and then register the decision.
+
+### 8.5.1 Ask the human which modules to keep
+
+```
+Documentation modules to keep (default = core only):
+- core       [always kept]  FR / RTM / ADR / RFC / overview
+- reports    [y/n]          portfolio / spike / benchmark / API / PAAR
+- briefings  [y/n]          dated, frozen interview & talk archives
+- extended   [y/n]          C4 Lv2 containers / DFD / Extended DD
+```
+
+### 8.5.2 Trim unwanted modules
+
+```bash
+# If reports is NOT wanted:
+rm -rf docs/reports/
+
+# If briefings is NOT wanted:
+rm -rf docs/briefings/
+
+# If extended is NOT wanted:
+rm -f docs/architecture/containers.md docs/architecture/DFD.md
+rm -rf docs/data/
+```
+
+### 8.5.3 Replace placeholders
+
+Files with placeholders to edit after template instantiation:
+
+- `.github/CODEOWNERS` — replace `@YOUR_ORG/*` placeholders with real
+  team handles, or delete rows you don't need. If the project has no
+  teams, a single `* @YOUR_USERNAME` line works
+- `docs/README.md` — top-of-file project name and one-line description
+- `docs/architecture/overview.md` — project name, actors, external
+  systems in the Mermaid diagram
+- `docs/requirements/RTM.md` — remove the example row; the table
+  starts empty
+
+### 8.5.4 Update the documentation map
+
+Edit `.claude/rules/documentation.md` to remove module sections that
+aren't installed. This keeps Claude's decision tree accurate when it
+later asks "where does this new document go?"
+
+### 8.5.5 Self-check
+
+Run `bash validate.sh`. V9 through V16 verify:
+
+- `examples/` ↔ `SETUP.md Appendix` code blocks stay in sync
+- `.github/ISSUE_TEMPLATE/*.yml` are valid YAML
+- `docs/` module structure matches the human's selection
+- No dangling references (e.g. a trimmed `docs/reports/` still linked
+  from `docs/README.md`)
+
 ## 9. Phase 6 — CodeRabbit Setup
 
 1. Write `.coderabbit.yaml` **at the project root** (exact content in
@@ -326,7 +425,10 @@ as complete to the human.
 - [ ] Node.js version verified (≥ 20)
 - [ ] Scaffolding command ran in an empty or newly-created directory
 - [ ] All config files written
+- [ ] Phase 5.5 Core files written (`.github/` + `docs/{requirements,architecture}`)
+- [ ] Phase 5.5 opt-in modules selected + written (if any)
 - [ ] `npm run verify` passes locally
+- [ ] `bash validate.sh` passes (all V1–V16 PASS)
 - [ ] Git Safety Gate passed
 - [ ] `gh run watch` shows green CI
 - [ ] CodeRabbit app installed or fallback configured

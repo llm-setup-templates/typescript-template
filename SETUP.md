@@ -283,10 +283,26 @@ CI triggers on `push: [main, feat/**, fix/**, refactor/**]` and on
 by pushing the feature-branch commit directly into `main` on first push:
 
 ```bash
+# Seed main from the feature branch (required on a fresh repo
+# with no remote branches yet — CI's `push: [main, ...]` trigger
+# needs main to exist before the feature-branch push fires it).
 git push origin $(git rev-parse --abbrev-ref HEAD):main
+
+# Push the feature branch and track it. This fires CI a second time,
+# but on the branch ref, so two separate runs are produced.
 git push -u origin $(git rev-parse --abbrev-ref HEAD)
-gh run watch
+
+# Watch the most recent run for THIS feature branch (not main),
+# and exit non-zero if the run fails — lets the agent detect
+# CI failure programmatically instead of relying on terminal output.
+gh run watch --exit-status "$(gh run list --branch "$(git rev-parse --abbrev-ref HEAD)" --limit 1 --json databaseId --jq '.[0].databaseId')"
 ```
+
+> **Why target the branch run explicitly**: `gh run watch` without an
+> ID picks the most recently *queued* run, which can be either the
+> `main` push or the branch push depending on timing. Scoping to the
+> branch run gives deterministic CI monitoring and makes `--exit-status`
+> reflect the branch's actual verdict.
 
 ### 11.4 Success Declaration
 
@@ -302,6 +318,7 @@ as complete to the human.
 | Windows CRLF 이슈 (CI에서 Prettier 실패) | Windows에서 CRLF로 저장된 파일 | `.gitattributes`에 `* text=auto eol=lf` 적용 후 `git add --renormalize .` |
 | CI build 실패 (환경변수 미설정) | `NEXT_PUBLIC_*` 환경변수가 CI에 없음 | `ci.yml`의 `env:` 블록에 dummy 값 또는 GitHub Secrets로 주입 |
 | `eslint-plugin-fsd-lint` flat config 미지원 | 플러그인이 legacy config만 지원 | `@eslint/eslintrc`의 `FlatCompat.plugins()` wrapper 사용 (`examples/eslint.config.mjs` 참조) |
+| `depcruise` 규칙에서 `no-cross-feature-import`가 같은 feature 호출도 차단 | `pathNot: '^src/features/$1/'`의 `$1` back-reference가 dependency-cruiser 구버전에서 미지원 | 최신(`dependency-cruiser@^16`) 사용 + 그래도 오작동 시 eslint-plugin-fsd-lint의 `forbidden-imports`가 primary 집행자이므로 해당 rule을 `warn`으로 완화. 상세: `examples/.dependency-cruiser.cjs` 코드 주석 |
 
 ## 13. Essential Checklist
 
@@ -357,7 +374,14 @@ dist/
 coverage/
 *.min.js
 public/
+examples/
 ```
+
+> **examples/ parity**: ESLint (`globalIgnores`), tsconfig
+> (`exclude: ["examples"]`), and Prettier (`.prettierignore`) must all
+> exclude `examples/`. Dropping any one of them causes `npm run verify`
+> to fail on the template files that were meant to be snippets for
+> copy-paste, not live source.
 
 #### `eslint.config.mjs`
 
@@ -391,6 +415,7 @@ const eslintConfig = defineConfig([
       'fsd-lint/forbidden-imports': 'error',
       'fsd-lint/no-relative-imports': 'error',
       'fsd-lint/no-public-api-sidestep': 'error',
+      'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
     },
   },
   globalIgnores([

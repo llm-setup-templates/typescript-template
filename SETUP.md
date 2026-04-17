@@ -105,6 +105,25 @@ overview, tech stack, and architecture pointers) is overwritten. After
 Phase 1, restore the template `CLAUDE.md` from this repo and substitute
 `{{PROJECT_NAME}}`.
 
+### Phase 1 Post-scaffold Cleanup
+
+After `create-next-app` completes:
+
+1. **Restore template CLAUDE.md** — Next 16's generated `CLAUDE.md` is a
+   stub (`@AGENTS.md` redirect) that overwrites the template's rich version.
+   Restore from `/tmp/ref-ts/CLAUDE.md` and substitute `{{PROJECT_NAME}}`.
+
+2. **Remove AGENTS.md** — Next 16 generates `AGENTS.md` alongside the
+   redirect stub. This template does not use an AGENTS.md; remove it:
+   ```bash
+   rm -f AGENTS.md
+   ```
+
+3. **`--eslint=false` caveat** — Next 16 ignores this flag and installs
+   ESLint packages anyway. Harmless because Phase 2 pins our versions
+   explicitly, but be aware the initial package.json may have ESLint
+   packages before Phase 2 runs.
+
 ## 4.5 Phase 1.5 — FSD Directory Scaffold
 
 ```bash
@@ -166,6 +185,11 @@ Write the following config files (exact content in Appendix § Config Reference)
 - `.gitignore` — standard Next.js ignores
 - `.dependency-cruiser.cjs` — Dependency Cruiser config for FSD infra isolation
 - `tsconfig.json` — merge `tsconfig.strict-additions.json` options into `compilerOptions`, and add `"examples"` to the `"exclude"` array
+
+> **Dotfile visibility**: `.dependency-cruiser.cjs`, `.prettierignore`,
+> `.prettierrc`, `.lintstagedrc.json`, `.coderabbit.yaml` are dotfiles.
+> They do NOT appear in `ls examples/` — use `ls -A examples/` or copy
+> by name: `cp /tmp/ref-ts/examples/.dependency-cruiser.cjs .`
 
 Merge `examples/tsconfig.strict-additions.json` into your project's `tsconfig.json` and exclude `examples/` from type checking:
 ```json

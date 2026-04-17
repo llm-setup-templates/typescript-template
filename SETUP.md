@@ -532,6 +532,9 @@ coverage/
 *.min.js
 public/
 examples/
+# GitHub workflow/template YAML files — Prettier's YAML parser fails
+# on multi-line strings with backticks (e.g., .github/ISSUE_TEMPLATE/adr.yml)
+.github/
 ```
 
 > **examples/ parity**: ESLint (`globalIgnores`), tsconfig

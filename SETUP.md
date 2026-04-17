@@ -108,7 +108,8 @@ npm i -D \
   husky@^9 \
   @commitlint/cli \
   @commitlint/config-conventional \
-  lint-staged
+  lint-staged \
+  dependency-cruiser
 
 npx husky init
 ```
@@ -128,6 +129,7 @@ Write the following config files (exact content in Appendix § Config Reference)
 - `.husky/commit-msg` — runs `npx --no -- commitlint --edit "$1"`
 - `.gitattributes` — enforces LF line endings
 - `.gitignore` — standard Next.js ignores
+- `.dependency-cruiser.cjs` — Dependency Cruiser config for FSD infra isolation
 - `tsconfig.json` — merge `tsconfig.strict-additions.json` options into `compilerOptions`, and add `"examples"` to the `"exclude"` array
 
 Merge `examples/tsconfig.strict-additions.json` into your project's `tsconfig.json` and exclude `examples/` from type checking:
@@ -161,10 +163,11 @@ Merge the following into the `"scripts"` section of `package.json`
     "format:check": "prettier --check .",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "depcruise": "depcruise src --config .dependency-cruiser.cjs",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "verify": "npm run format:check && npm run typecheck && npm run lint && npm run test && npm run build",
+    "verify": "npm run format:check && npm run typecheck && npm run depcruise && npm run lint && npm run test && npm run build",
     "prepare": "husky"
   }
 }
@@ -173,16 +176,36 @@ Merge the following into the `"scripts"` section of `package.json`
 > **Next 16 note**: `next lint` was removed in Next.js 16. Use `eslint`
 > directly (shown above). Do NOT use `"lint": "next lint"`.
 
+> **depcruise note**: `npm run depcruise` enforces FSD infrastructure
+> isolation (entities/features MUST NOT import DB drivers directly).
+> This step runs before `lint` in `verify` so architectural violations
+> fail fast, before any test/build cost. Matches CI step order.
+
 ## 8. Phase 5 — CI Workflow
 
-Write `.github/workflows/ci.yml` (exact content in Appendix § CI Reference).
+Create the workflow directory first, then write the CI config:
+
+```bash
+mkdir -p .github/workflows
+```
+
+Then write `.github/workflows/ci.yml` (exact content in Appendix § CI
+Reference). On a fresh `create-next-app` scaffold `.github/` does not
+exist yet, so the `mkdir -p` is required before using plain `echo >`
+or `cat > .github/workflows/ci.yml` in an agent that shells out for
+file writes.
 
 ## 9. Phase 6 — CodeRabbit Setup
 
-1. Write `.coderabbit.yaml` (exact content in Appendix § CodeRabbit Reference).
+1. Write `.coderabbit.yaml` **at the project root** (exact content in
+   Appendix § CodeRabbit Reference). CodeRabbit only auto-detects the
+   config at the repo root — `.github/.coderabbit.yaml` is NOT picked
+   up. The `examples/.coderabbit.yaml` file in this template is the
+   source to copy; the destination is `./.coderabbit.yaml`.
 2. Install CodeRabbit GitHub App: https://github.com/apps/coderabbitai
 3. If CodeRabbit trial is unavailable, fall back to the Claude Code Review
-   Action (Appendix § Fallback).
+   Action (Appendix § Fallback): write `.github/workflows/claude-review.yml`
+   and configure `ANTHROPIC_API_KEY` in repo Secrets.
 
 ## 10. Phase 7 — Local Verify (fail-fast)
 
@@ -260,10 +283,26 @@ CI triggers on `push: [main, feat/**, fix/**, refactor/**]` and on
 by pushing the feature-branch commit directly into `main` on first push:
 
 ```bash
+# Seed main from the feature branch (required on a fresh repo
+# with no remote branches yet — CI's `push: [main, ...]` trigger
+# needs main to exist before the feature-branch push fires it).
 git push origin $(git rev-parse --abbrev-ref HEAD):main
+
+# Push the feature branch and track it. This fires CI a second time,
+# but on the branch ref, so two separate runs are produced.
 git push -u origin $(git rev-parse --abbrev-ref HEAD)
-gh run watch
+
+# Watch the most recent run for THIS feature branch (not main),
+# and exit non-zero if the run fails — lets the agent detect
+# CI failure programmatically instead of relying on terminal output.
+gh run watch --exit-status "$(gh run list --branch "$(git rev-parse --abbrev-ref HEAD)" --limit 1 --json databaseId --jq '.[0].databaseId')"
 ```
+
+> **Why target the branch run explicitly**: `gh run watch` without an
+> ID picks the most recently *queued* run, which can be either the
+> `main` push or the branch push depending on timing. Scoping to the
+> branch run gives deterministic CI monitoring and makes `--exit-status`
+> reflect the branch's actual verdict.
 
 ### 11.4 Success Declaration
 
@@ -272,13 +311,14 @@ as complete to the human.
 
 ## 12. Troubleshooting
 
-| 문제 | 원인 | 해결 |
-|------|------|------|
-| `jest.config.ts` 파싱 실패 (`ts-node` 관련 에러) | `ts-node`가 devDependencies에 없음 | `npm i -D ts-node` 후 재실행 |
-| Jest ESM/CJS 충돌 (`SyntaxError: Cannot use import statement`) | Next.js 15 ESM 모듈을 Jest CJS로 변환 실패 | `jest.config.ts`에 `transform` 설정 추가: `extensionsToTreatAsEsm: ['.ts', '.tsx']` + `ts-jest` ESM preset |
-| Windows CRLF 이슈 (CI에서 Prettier 실패) | Windows에서 CRLF로 저장된 파일 | `.gitattributes`에 `* text=auto eol=lf` 적용 후 `git add --renormalize .` |
-| CI build 실패 (환경변수 미설정) | `NEXT_PUBLIC_*` 환경변수가 CI에 없음 | `ci.yml`의 `env:` 블록에 dummy 값 또는 GitHub Secrets로 주입 |
-| `eslint-plugin-fsd-lint` flat config 미지원 | 플러그인이 legacy config만 지원 | `@eslint/eslintrc`의 `FlatCompat.plugins()` wrapper 사용 (`examples/eslint.config.mjs` 참조) |
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| `jest.config.ts` fails to parse (`ts-node` error) | `ts-node` missing from devDependencies | `npm i -D ts-node`, then retry |
+| Jest ESM/CJS conflict (`SyntaxError: Cannot use import statement`) | Next.js 15 ESM modules not transformed by Jest CJS | Add `transform` to `jest.config.ts`: `extensionsToTreatAsEsm: ['.ts', '.tsx']` + `ts-jest` ESM preset |
+| Windows CRLF (Prettier fails in CI) | Files saved with CRLF on Windows | Apply `.gitattributes` with `* text=auto eol=lf`, then `git add --renormalize .` |
+| CI build fails on missing env vars | `NEXT_PUBLIC_*` vars not present in CI | Inject dummy values in `ci.yml` `env:` block or route through GitHub Secrets |
+| `eslint-plugin-fsd-lint` flat config unsupported | Plugin ships legacy config only | Wrap with `@eslint/eslintrc` `FlatCompat.plugins()` (see `examples/eslint.config.mjs`) |
+| `depcruise` rule `no-cross-feature-import` also blocks same-feature calls | `pathNot: '^src/features/$1/'` back-reference not honored by older dependency-cruiser | Upgrade to `dependency-cruiser@^16`; if the glitch persists, note that `eslint-plugin-fsd-lint`'s `forbidden-imports` is the primary enforcer and the depcruise rule can be softened to `warn`. See inline comment in `examples/.dependency-cruiser.cjs` |
 
 ## 13. Essential Checklist
 
@@ -310,6 +350,7 @@ as complete to the human.
 | @commitlint/config-conventional | latest |
 | lint-staged | latest |
 | eslint-plugin-fsd-lint | latest |
+| dependency-cruiser | latest |
 
 ### § Config File Contents
 
@@ -333,7 +374,14 @@ dist/
 coverage/
 *.min.js
 public/
+examples/
 ```
+
+> **examples/ parity**: ESLint (`globalIgnores`), tsconfig
+> (`exclude: ["examples"]`), and Prettier (`.prettierignore`) must all
+> exclude `examples/`. Dropping any one of them causes `npm run verify`
+> to fail on the template files that were meant to be snippets for
+> copy-paste, not live source.
 
 #### `eslint.config.mjs`
 
@@ -367,6 +415,7 @@ const eslintConfig = defineConfig([
       'fsd-lint/forbidden-imports': 'error',
       'fsd-lint/no-relative-imports': 'error',
       'fsd-lint/no-public-api-sidestep': 'error',
+      'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
     },
   },
   globalIgnores([
@@ -543,10 +592,11 @@ Merge these options into your project's `tsconfig.json` `compilerOptions`.
     "format:check": "prettier --check .",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "depcruise": "depcruise src --config .dependency-cruiser.cjs",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "verify": "npm run format:check && npm run typecheck && npm run lint && npm run test && npm run build",
+    "verify": "npm run format:check && npm run typecheck && npm run depcruise && npm run lint && npm run test && npm run build",
     "prepare": "husky"
   }
 }
@@ -616,6 +666,9 @@ jobs:
 
       - name: Type check
         run: npm run typecheck
+
+      - name: Architecture boundary check
+        run: npm run depcruise
 
       - name: Lint
         run: npm run lint

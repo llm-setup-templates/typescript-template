@@ -95,6 +95,136 @@ else
 fi
 
 echo ""
+echo "=== V9: examples/ci.yml regression guards ==="
+# Regression checks: these exact tokens must NOT appear again — each
+# one is a bug PR #6 fixed.
+check_absent() {
+  local id="$1"
+  local desc="$2"
+  local file="$3"
+  local pattern="$4"
+  if grep -qE "$pattern" "$file" 2>/dev/null; then
+    echo "FAIL [$id] $desc — forbidden pattern found in $file: $pattern"
+    FAIL=$((FAIL + 1))
+  else
+    echo "PASS [$id] $desc (forbidden pattern absent)"
+    PASS=$((PASS + 1))
+  fi
+}
+check_absent "V9a" "ci.yml uses commitlint.config.mjs (not .js)" \
+  "$ROOT/examples/ci.yml" "commitlint\.config\.js[^m]"
+check_absent "V9b" "jest.config.ts uses testMatch (not testPathPattern)" \
+  "$ROOT/examples/jest.config.ts" "testPathPattern"
+check_absent "V9c" "husky/pre-commit has no legacy husky.sh sourcing" \
+  "$ROOT/examples/husky/pre-commit" "husky\.sh"
+check_absent "V9d" "husky/commit-msg has no legacy husky.sh sourcing" \
+  "$ROOT/examples/husky/commit-msg" "husky\.sh"
+check_absent "V9e" "package.scripts.json does not use deprecated next lint" \
+  "$ROOT/examples/package.scripts.json" '"next lint"'
+
+echo ""
+echo "=== V10: depcruise wired across Phase 2/3/4/CI ==="
+V10_P2=$(grep -c "dependency-cruiser" "$ROOT/SETUP.md" || echo "0")
+V10_SCRIPT=$(grep -c '"depcruise"' "$ROOT/SETUP.md" || echo "0")
+V10_EXAMPLES=$(grep -c '"depcruise"' "$ROOT/examples/package.scripts.json" || echo "0")
+check_gte "V10a" "dependency-cruiser mentioned in SETUP.md" "$V10_P2" "3"
+check_gte "V10b" "depcruise script defined in SETUP.md (Phase 4 + Appendix)" "$V10_SCRIPT" "2"
+check_gte "V10c" "depcruise script present in examples/package.scripts.json" "$V10_EXAMPLES" "1"
+
+echo ""
+echo "=== V11: Phase 5.5 Core files present ==="
+for f in \
+  .github/ISSUE_TEMPLATE/feature.yml \
+  .github/ISSUE_TEMPLATE/bug.yml \
+  .github/ISSUE_TEMPLATE/adr.yml \
+  .github/ISSUE_TEMPLATE/config.yml \
+  .github/PULL_REQUEST_TEMPLATE.md \
+  .github/CODEOWNERS \
+  docs/README.md \
+  docs/requirements/RTM.md \
+  docs/requirements/_FR-template.md \
+  docs/architecture/overview.md \
+  docs/architecture/decisions/README.md \
+  docs/architecture/decisions/_ADR-template.md \
+  docs/architecture/decisions/_RFC-template.md \
+  .claude/rules/documentation.md; do
+  if [ -f "$ROOT/$f" ]; then
+    echo "PASS [V11] $f"
+    PASS=$((PASS + 1))
+  else
+    echo "FAIL [V11] $f missing"
+    FAIL=$((FAIL + 1))
+  fi
+done
+
+echo ""
+echo "=== V12: ADR template encodes 5-state lifecycle ==="
+V12_STATES=0
+for state in Proposed Accepted Rejected Deprecated Superseded; do
+  if grep -q "$state" "$ROOT/docs/architecture/decisions/README.md"; then
+    V12_STATES=$((V12_STATES + 1))
+  fi
+done
+check "V12" "ADR lifecycle states (Proposed/Accepted/Rejected/Deprecated/Superseded)" "$V12_STATES" "5"
+
+echo ""
+echo "=== V13: PR template has required discipline sections ==="
+V13_REFS=0
+for pattern in "FR:" "ADR:" "RTM discipline" "Balancing Rule"; do
+  if grep -q "$pattern" "$ROOT/.github/PULL_REQUEST_TEMPLATE.md"; then
+    V13_REFS=$((V13_REFS + 1))
+  fi
+done
+check "V13" "PR template references (FR / ADR / RTM / Balancing)" "$V13_REFS" "4"
+
+echo ""
+echo "=== V14: Reports opt-in module (present or absent consistently) ==="
+if [ -d "$ROOT/docs/reports" ]; then
+  V14_FILES=0
+  for f in README.md _spike-test-template.md _benchmark-template.md _api-analysis-template.md _paar-template.md; do
+    if [ -f "$ROOT/docs/reports/$f" ]; then
+      V14_FILES=$((V14_FILES + 1))
+    fi
+  done
+  check "V14" "Reports module completeness (all 5 files present)" "$V14_FILES" "5"
+else
+  echo "SKIP [V14] Reports module not installed"
+fi
+
+echo ""
+echo "=== V15: Briefings opt-in module consistency ==="
+if [ -d "$ROOT/docs/briefings" ]; then
+  V15_FILES=0
+  for f in README.md _template/CLAUDE.md _template/README.md _template/slide-outline.md _template/talking-points.md _template/decisions-checklist.md _template/open-questions.md; do
+    if [ -f "$ROOT/docs/briefings/$f" ]; then
+      V15_FILES=$((V15_FILES + 1))
+    fi
+  done
+  check "V15" "Briefings module completeness (all 7 files present)" "$V15_FILES" "7"
+else
+  echo "SKIP [V15] Briefings module not installed"
+fi
+
+echo ""
+echo "=== V16: Extended opt-in module consistency ==="
+V16_PRESENT=0
+for f in docs/architecture/containers.md docs/architecture/DFD.md docs/data/dictionary.md; do
+  if [ -f "$ROOT/$f" ]; then
+    V16_PRESENT=$((V16_PRESENT + 1))
+  fi
+done
+# Extended is all-or-nothing: either 3 files or 0
+if [ "$V16_PRESENT" = "3" ]; then
+  echo "PASS [V16] Extended module installed (3/3)"
+  PASS=$((PASS + 1))
+elif [ "$V16_PRESENT" = "0" ]; then
+  echo "SKIP [V16] Extended module not installed"
+else
+  echo "FAIL [V16] Extended module partial: $V16_PRESENT/3 files — must be all or none"
+  FAIL=$((FAIL + 1))
+fi
+
+echo ""
 echo "======================================="
 echo "RESULTS: $PASS passed, $FAIL failed"
 echo "======================================="

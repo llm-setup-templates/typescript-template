@@ -108,7 +108,8 @@ npm i -D \
   husky@^9 \
   @commitlint/cli \
   @commitlint/config-conventional \
-  lint-staged
+  lint-staged \
+  dependency-cruiser
 
 npx husky init
 ```
@@ -128,6 +129,7 @@ Write the following config files (exact content in Appendix § Config Reference)
 - `.husky/commit-msg` — runs `npx --no -- commitlint --edit "$1"`
 - `.gitattributes` — enforces LF line endings
 - `.gitignore` — standard Next.js ignores
+- `.dependency-cruiser.cjs` — Dependency Cruiser config for FSD infra isolation
 - `tsconfig.json` — merge `tsconfig.strict-additions.json` options into `compilerOptions`, and add `"examples"` to the `"exclude"` array
 
 Merge `examples/tsconfig.strict-additions.json` into your project's `tsconfig.json` and exclude `examples/` from type checking:
@@ -161,10 +163,11 @@ Merge the following into the `"scripts"` section of `package.json`
     "format:check": "prettier --check .",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "depcruise": "depcruise src --config .dependency-cruiser.cjs",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "verify": "npm run format:check && npm run typecheck && npm run lint && npm run test && npm run build",
+    "verify": "npm run format:check && npm run typecheck && npm run depcruise && npm run lint && npm run test && npm run build",
     "prepare": "husky"
   }
 }
@@ -172,6 +175,11 @@ Merge the following into the `"scripts"` section of `package.json`
 
 > **Next 16 note**: `next lint` was removed in Next.js 16. Use `eslint`
 > directly (shown above). Do NOT use `"lint": "next lint"`.
+
+> **depcruise note**: `npm run depcruise` enforces FSD infrastructure
+> isolation (entities/features MUST NOT import DB drivers directly).
+> This step runs before `lint` in `verify` so architectural violations
+> fail fast, before any test/build cost. Matches CI step order.
 
 ## 8. Phase 5 — CI Workflow
 
@@ -310,6 +318,7 @@ as complete to the human.
 | @commitlint/config-conventional | latest |
 | lint-staged | latest |
 | eslint-plugin-fsd-lint | latest |
+| dependency-cruiser | latest |
 
 ### § Config File Contents
 
@@ -543,10 +552,11 @@ Merge these options into your project's `tsconfig.json` `compilerOptions`.
     "format:check": "prettier --check .",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "depcruise": "depcruise src --config .dependency-cruiser.cjs",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "verify": "npm run format:check && npm run typecheck && npm run lint && npm run test && npm run build",
+    "verify": "npm run format:check && npm run typecheck && npm run depcruise && npm run lint && npm run test && npm run build",
     "prepare": "husky"
   }
 }
@@ -616,6 +626,9 @@ jobs:
 
       - name: Type check
         run: npm run typecheck
+
+      - name: Architecture boundary check
+        run: npm run depcruise
 
       - name: Lint
         run: npm run lint

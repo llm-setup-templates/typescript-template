@@ -28,6 +28,7 @@ llm-setup-prompts/typescript-template. Architecture follows Feature-Sliced Desig
 - Format check: `npm run format:check`
 - Lint: `npm run lint`
 - Type check: `npm run typecheck`
+- Architecture check: `npm run depcruise`
 - Test: `npm run test`
 - Build: `npm run build`
 - Full verify: `npm run verify`

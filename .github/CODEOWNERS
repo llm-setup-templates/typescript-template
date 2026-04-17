@@ -1,0 +1,24 @@
+# CODEOWNERS — auto-assigns reviewers based on changed paths.
+# https://docs.github.com/en/repositories/managing-your-repositories-settings-and-customization/customizing-your-repository/about-code-owners
+#
+# Replace `@YOUR_ORG/*` with real GitHub team or user handles before
+# relying on this file. Teams must be members of the repository.
+
+# Default — fallback when no more specific rule matches
+*                                           @YOUR_ORG/engineering
+
+# Architecture-critical — require architect review
+/docs/architecture/decisions/               @YOUR_ORG/architects
+/src/shared/                                @YOUR_ORG/architects
+
+# Infrastructure-critical — require devops review
+/.github/                                   @YOUR_ORG/devops
+/.husky/                                    @YOUR_ORG/devops
+/.dependency-cruiser.cjs                    @YOUR_ORG/devops
+/eslint.config.mjs                          @YOUR_ORG/devops
+/jest.config.ts                             @YOUR_ORG/devops
+/tsconfig.json                              @YOUR_ORG/devops
+
+# Feature domains — replace with your team handles as they emerge
+# /src/features/auth/                       @YOUR_ORG/auth-team
+# /src/features/payments/                   @YOUR_ORG/payments-team

@@ -183,14 +183,29 @@ Merge the following into the `"scripts"` section of `package.json`
 
 ## 8. Phase 5 — CI Workflow
 
-Write `.github/workflows/ci.yml` (exact content in Appendix § CI Reference).
+Create the workflow directory first, then write the CI config:
+
+```bash
+mkdir -p .github/workflows
+```
+
+Then write `.github/workflows/ci.yml` (exact content in Appendix § CI
+Reference). On a fresh `create-next-app` scaffold `.github/` does not
+exist yet, so the `mkdir -p` is required before using plain `echo >`
+or `cat > .github/workflows/ci.yml` in an agent that shells out for
+file writes.
 
 ## 9. Phase 6 — CodeRabbit Setup
 
-1. Write `.coderabbit.yaml` (exact content in Appendix § CodeRabbit Reference).
+1. Write `.coderabbit.yaml` **at the project root** (exact content in
+   Appendix § CodeRabbit Reference). CodeRabbit only auto-detects the
+   config at the repo root — `.github/.coderabbit.yaml` is NOT picked
+   up. The `examples/.coderabbit.yaml` file in this template is the
+   source to copy; the destination is `./.coderabbit.yaml`.
 2. Install CodeRabbit GitHub App: https://github.com/apps/coderabbitai
 3. If CodeRabbit trial is unavailable, fall back to the Claude Code Review
-   Action (Appendix § Fallback).
+   Action (Appendix § Fallback): write `.github/workflows/claude-review.yml`
+   and configure `ANTHROPIC_API_KEY` in repo Secrets.
 
 ## 10. Phase 7 — Local Verify (fail-fast)
 

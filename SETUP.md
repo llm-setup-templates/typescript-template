@@ -373,6 +373,32 @@ Run `bash validate.sh`. V9 through V16 verify:
 - No dangling references (e.g. a trimmed `docs/reports/` still linked
   from `docs/README.md`)
 
+### 8.5.6 validate.yml — template-only (do NOT copy)
+
+`llm-setup-templates/typescript-template/.github/workflows/validate.yml` is
+the **template's own regression CI** — it verifies that validate.sh
+continues to find all required files as the template evolves. This
+workflow and `validate.sh` belong to the template repo only; **do not
+copy either to your derived repo**.
+
+When copying `.github/` contents from `/tmp/ref-ts/.github/` during
+Phase 5.5, explicitly exclude:
+
+```bash
+cp -r /tmp/ref-ts/.github/ISSUE_TEMPLATE .github/
+cp /tmp/ref-ts/.github/PULL_REQUEST_TEMPLATE.md .github/
+cp /tmp/ref-ts/.github/CODEOWNERS .github/
+# Note: .github/workflows/validate.yml — SKIP (template-only)
+# Your derived repo has its own .github/workflows/ci.yml from Phase 5
+```
+
+If you mistakenly copied validate.yml, remove it:
+
+```bash
+rm -f .github/workflows/validate.yml
+git add .github/workflows/
+```
+
 ## 9. Phase 6 — CodeRabbit Setup
 
 1. Write `.coderabbit.yaml` **at the project root** (exact content in

@@ -497,6 +497,7 @@ as complete to the human.
 | CI build fails on missing env vars | `NEXT_PUBLIC_*` vars not present in CI | Inject dummy values in `ci.yml` `env:` block or route through GitHub Secrets |
 | `eslint-plugin-fsd-lint` flat config unsupported | Plugin ships legacy config only | Wrap with `@eslint/eslintrc` `FlatCompat.plugins()` (see `examples/eslint.config.mjs`) |
 | `depcruise` rule `no-cross-feature-import` also blocks same-feature calls | `pathNot: '^src/features/$1/'` back-reference not honored by older dependency-cruiser | Upgrade to `dependency-cruiser@^16`; if the glitch persists, note that `eslint-plugin-fsd-lint`'s `forbidden-imports` is the primary enforcer and the depcruise rule can be softened to `warn`. See inline comment in `examples/.dependency-cruiser.cjs` |
+| `prettier --check` fails on `.github/ISSUE_TEMPLATE/*.yml` (YAML parse error) | Prettier's YAML parser chokes on multi-line strings with backticks | Add `.github/` to `.prettierignore` (already in Fix 2's updated template). If still failing, verify `.prettierignore` has the `.github/` line |
 
 ## 13. Essential Checklist
 

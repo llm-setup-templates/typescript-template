@@ -80,3 +80,11 @@ When adding a new feature (component, API route, utility):
 - **API route**: request/response test with mocked dependencies
 - **Snapshot**: if the feature produces stable UI output, add a snapshot test
 - Follow existing test file naming convention (check `__tests__/` vs. colocated)
+
+## Worked examples
+
+For three concrete walkthroughs (add GET route, change signature,
+refactor with unchanged behavior) showing how this rules file maps to
+actual code/test diffs, see `examples/guides/test-modification-scenarios.md`.
+Copy the scenarios into your project's internal docs if you want them
+as a living reference.

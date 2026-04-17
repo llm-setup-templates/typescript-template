@@ -311,14 +311,14 @@ as complete to the human.
 
 ## 12. Troubleshooting
 
-| 문제 | 원인 | 해결 |
-|------|------|------|
-| `jest.config.ts` 파싱 실패 (`ts-node` 관련 에러) | `ts-node`가 devDependencies에 없음 | `npm i -D ts-node` 후 재실행 |
-| Jest ESM/CJS 충돌 (`SyntaxError: Cannot use import statement`) | Next.js 15 ESM 모듈을 Jest CJS로 변환 실패 | `jest.config.ts`에 `transform` 설정 추가: `extensionsToTreatAsEsm: ['.ts', '.tsx']` + `ts-jest` ESM preset |
-| Windows CRLF 이슈 (CI에서 Prettier 실패) | Windows에서 CRLF로 저장된 파일 | `.gitattributes`에 `* text=auto eol=lf` 적용 후 `git add --renormalize .` |
-| CI build 실패 (환경변수 미설정) | `NEXT_PUBLIC_*` 환경변수가 CI에 없음 | `ci.yml`의 `env:` 블록에 dummy 값 또는 GitHub Secrets로 주입 |
-| `eslint-plugin-fsd-lint` flat config 미지원 | 플러그인이 legacy config만 지원 | `@eslint/eslintrc`의 `FlatCompat.plugins()` wrapper 사용 (`examples/eslint.config.mjs` 참조) |
-| `depcruise` 규칙에서 `no-cross-feature-import`가 같은 feature 호출도 차단 | `pathNot: '^src/features/$1/'`의 `$1` back-reference가 dependency-cruiser 구버전에서 미지원 | 최신(`dependency-cruiser@^16`) 사용 + 그래도 오작동 시 eslint-plugin-fsd-lint의 `forbidden-imports`가 primary 집행자이므로 해당 rule을 `warn`으로 완화. 상세: `examples/.dependency-cruiser.cjs` 코드 주석 |
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| `jest.config.ts` fails to parse (`ts-node` error) | `ts-node` missing from devDependencies | `npm i -D ts-node`, then retry |
+| Jest ESM/CJS conflict (`SyntaxError: Cannot use import statement`) | Next.js 15 ESM modules not transformed by Jest CJS | Add `transform` to `jest.config.ts`: `extensionsToTreatAsEsm: ['.ts', '.tsx']` + `ts-jest` ESM preset |
+| Windows CRLF (Prettier fails in CI) | Files saved with CRLF on Windows | Apply `.gitattributes` with `* text=auto eol=lf`, then `git add --renormalize .` |
+| CI build fails on missing env vars | `NEXT_PUBLIC_*` vars not present in CI | Inject dummy values in `ci.yml` `env:` block or route through GitHub Secrets |
+| `eslint-plugin-fsd-lint` flat config unsupported | Plugin ships legacy config only | Wrap with `@eslint/eslintrc` `FlatCompat.plugins()` (see `examples/eslint.config.mjs`) |
+| `depcruise` rule `no-cross-feature-import` also blocks same-feature calls | `pathNot: '^src/features/$1/'` back-reference not honored by older dependency-cruiser | Upgrade to `dependency-cruiser@^16`; if the glitch persists, note that `eslint-plugin-fsd-lint`'s `forbidden-imports` is the primary enforcer and the depcruise rule can be softened to `warn`. See inline comment in `examples/.dependency-cruiser.cjs` |
 
 ## 13. Essential Checklist
 

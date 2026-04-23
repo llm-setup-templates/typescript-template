@@ -8,7 +8,7 @@ on:
 
 jobs:
   quality:
-    name: Format · Typecheck · Lint · Test · Build
+    name: Format · Typecheck · Architecture · Lint · Test · Build
     runs-on: ubuntu-latest
 
     steps:

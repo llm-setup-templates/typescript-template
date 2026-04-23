@@ -11,7 +11,7 @@ jobs:
     name: Static verification (validate.sh)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run validate.sh
         run: bash validate.sh

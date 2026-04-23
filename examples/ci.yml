@@ -41,7 +41,7 @@ jobs:
         run: npm run depcruise
 
       - name: Test
-        run: npm run test
+        run: npm run test:coverage
 
       - name: Build
         run: npm run build

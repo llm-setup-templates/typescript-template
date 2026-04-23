@@ -955,3 +955,26 @@ jobs:
             - Security issues (hardcoded secrets, unsafe innerHTML)
             Do NOT comment on formatting.
 ```
+
+### § Coverage Threshold Adjustment
+
+The default Jest `coverageThreshold.global` values in `examples/jest.config.ts` — `{ branches: 50, functions: 60, lines: 60, statements: 60 }` — are a **starter baseline** calibrated for day-0 scaffold green. The asymmetric floor (branches 10 points lower than the other three metrics) reflects that branch coverage is structurally harder to cover at scaffold time. See `docs/architecture/decisions/ADR-001-jest-coverage-threshold.md` for the full rationale and cross-stack comparison.
+
+Raise the thresholds when any of these trigger:
+
+- **Team size ≥ 5** — more contributors increases regression risk
+- **Audit / compliance scope** — regulated or reviewed codebases
+- **Production deployment** — real users depending on correctness
+
+**How to raise**:
+
+```ts
+// In examples/jest.config.ts
+coverageThreshold: {
+  global: { branches: 70, functions: 80, lines: 80, statements: 80 },
+},
+```
+
+Per-metric raises are allowed (each of the four numbers is independent). Update one or all four depending on what your test suite can currently support.
+
+**Do not lower any of the four metrics below the values in ADR-001** without recording an ADR that supersedes `ADR-001-jest-coverage-threshold.md`. The baseline floor is the minimum agreed-upon signal-to-noise for this template's TypeScript stack — lowering erodes the regression surface without a documented reason.

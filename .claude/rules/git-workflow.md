@@ -44,7 +44,7 @@ Config: `.lintstagedrc.json`
 
 ### Hook: commit-msg
 Runs `npx --no -- commitlint --edit $1` — validates commit message convention.
-Config: `commitlint.config.js`
+Config: `commitlint.config.mjs`
 
 ### Note
 The CI workflow (`ci.yml`) also runs `wagoid/commitlint-github-action@v6` as a

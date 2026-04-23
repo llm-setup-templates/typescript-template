@@ -2,13 +2,13 @@ name: CI
 
 on:
   push:
-    branches: [main, 'feat/**', 'fix/**', 'refactor/**']
+    branches: [main, 'feat/**', 'fix/**', 'refactor/**', 'docs/**']
   pull_request:
     branches: [main]
 
 jobs:
   quality:
-    name: Format · Typecheck · Lint · Test · Build
+    name: Format · Typecheck · Architecture · Lint · Test · Build
     runs-on: ubuntu-latest
 
     steps:
@@ -41,7 +41,7 @@ jobs:
         run: npm run depcruise
 
       - name: Test
-        run: npm run test
+        run: npm run test:coverage
 
       - name: Build
         run: npm run build

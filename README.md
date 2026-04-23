@@ -132,6 +132,38 @@ This loop matches the CI workflow exactly — no divergence by design.
 
 ---
 
+## Tips
+
+### Dependabot — group related updates
+
+`.github/dependabot.yml` ships with weekly npm + github-actions updates and
+conservative PR ceilings (5 / 3) so review queue does not flood on first run.
+Once the repo has a steady cadence, opt into `groups:` to batch related
+dependencies into a single PR. Example: collapse all `@types/*` bumps, all
+ESLint plugin bumps, or all Jest-related packages into one PR per group.
+
+```yaml
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      types:
+        patterns:
+          - "@types/*"
+      eslint:
+        patterns:
+          - "eslint*"
+          - "@eslint/*"
+```
+
+`groups:` is additive — ungrouped packages still get individual PRs.
+See [Dependabot groups docs](https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#groups)
+for the full option surface (patterns, exclude-patterns, update-types).
+
+---
+
 ## Related templates
 
 - [python-template](https://github.com/llm-setup-templates/python-template) — Python 3.13 + 3 archetypes (script / web / library)

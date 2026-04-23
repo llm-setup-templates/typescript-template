@@ -55,6 +55,25 @@ If the component or response contains dynamic values:
 
 Example: a component showing `lastUpdated: new Date()` — mock `Date.now` to a fixed value.
 
+## Server-only tests — override the default test environment
+
+`jest.config.ts` sets `testEnvironment: 'jsdom'` so React component tests
+run unmodified. Pure Node code (Route Handlers, Node-only utilities,
+Node API tests) has no DOM and may break or run slower under jsdom. Opt
+the affected file into the `node` environment via the file-level docblock
+comment — Jest reads it before loading the test:
+
+```ts
+/**
+ * @jest-environment node
+ */
+import { GET } from '@/app/api/health/route';
+// ... test body
+```
+
+Keep this override per-file (not global) so browser-oriented tests stay
+on jsdom. No config change required.
+
 ## Matching existing project patterns
 
 Before creating new test files:

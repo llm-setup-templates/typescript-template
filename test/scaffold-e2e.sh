@@ -235,48 +235,47 @@ esac
 
 echo "[e2e] structural checks PASS"
 
-# 6. Husky activation smoke test (C13C-R8) -- Cell 1 only.
-# Verifies that `npm install` activates Husky's commit-msg hook.
-if [[ "$CELL" = "1" ]] && command -v npm >/dev/null 2>&1; then
-  echo "[e2e] running npm ci for Husky smoke test (cell 1)..."
-  if npm ci --no-audit --no-fund 2>&1 | tail -5; then
-    HOOKS_PATH=$(git config --get core.hooksPath 2>/dev/null || echo "")
-    if [[ "$HOOKS_PATH" == *".husky"* ]] || [[ -d ".husky/_" ]]; then
-      echo "PASS [Cell1 Husky] core.hooksPath set to .husky (or _/ created)"
-    else
-      echo "WARN [Cell1 Husky] core.hooksPath not detected after npm ci (got: '$HOOKS_PATH')"
-    fi
-
-    # Negative test: bad commit message should fail commit-msg hook (exit non-zero).
-    git -c user.name=e2e -c user.email=e2e@e2e.local init -q -b main 2>/dev/null || true
-    git add -A >/dev/null 2>&1 || true
-    set +e
-    git -c user.name=e2e -c user.email=e2e@e2e.local commit -qm "BAD MESSAGE NO TYPE" 2>/dev/null
-    BAD_RC=$?
-    set -e
-    if [[ $BAD_RC -ne 0 ]]; then
-      echo "PASS [Cell1 Husky] commit-msg hook rejected bad message (exit $BAD_RC)"
-    else
-      echo "WARN [Cell1 Husky] commit-msg hook did not reject bad message (Husky may not be activated)"
-    fi
-  else
-    echo "WARN [Cell1] npm ci failed; skipping Husky smoke test"
-  fi
-fi
-
-# 7. npm verify (most important -- only if npm available)
-if command -v npm >/dev/null 2>&1 && [[ "$CELL" != "1" ]]; then
-  # Cell 1 already ran npm ci above; cells 2-4 fresh install.
+# 6. npm verify (most important -- only if npm available).
+# Run npm ci + verify for every cell. Husky smoke test (cell 1 only) runs
+# AFTER verify so that lint-staged's auto-fix during a smoke commit attempt
+# cannot mutate file contents and break a subsequent format:check.
+if command -v npm >/dev/null 2>&1; then
   echo "[e2e] running npm ci..."
   npm ci --no-audit --no-fund
-fi
-
-if command -v npm >/dev/null 2>&1; then
   echo "[e2e] running npm run verify..."
   npm run verify
   echo "[e2e] npm run verify PASS"
 else
   echo "[e2e] npm not available -- skipping verify (CI must run it)"
+fi
+
+# 7. Husky activation smoke test (C13C-R8) -- Cell 1 only, post-verify.
+# Verifies that the prepare script set core.hooksPath at npm ci time and that
+# the commit-msg hook rejects a non-Conventional-Commits message. Run AFTER
+# verify so the smoke commit's lint-staged side effects don't disturb format:check.
+if [[ "$CELL" = "1" ]] && command -v npm >/dev/null 2>&1; then
+  HOOKS_PATH=$(git config --get core.hooksPath 2>/dev/null || echo "")
+  if [[ "$HOOKS_PATH" == *".husky"* ]] || [[ -d ".husky/_" ]]; then
+    echo "PASS [Cell1 Husky] core.hooksPath set to .husky (or _/ created)"
+  else
+    echo "WARN [Cell1 Husky] core.hooksPath not detected after npm ci (got: '$HOOKS_PATH')"
+  fi
+
+  # Negative test: bad commit message should fail commit-msg hook (exit non-zero).
+  # `git init` is idempotent (Stage G already initialized); `add -A` stages any
+  # changes lint-staged might still rewrite. We do not care about exit code of
+  # add itself.
+  git -c user.name=e2e -c user.email=e2e@e2e.local init -q -b main 2>/dev/null || true
+  git add -A >/dev/null 2>&1 || true
+  set +e
+  git -c user.name=e2e -c user.email=e2e@e2e.local commit -qm "BAD MESSAGE NO TYPE" 2>/dev/null
+  BAD_RC=$?
+  set -e
+  if [[ $BAD_RC -ne 0 ]]; then
+    echo "PASS [Cell1 Husky] commit-msg hook rejected bad message (exit $BAD_RC)"
+  else
+    echo "WARN [Cell1 Husky] commit-msg hook did not reject bad message (Husky may not be activated)"
+  fi
 fi
 
 echo "[e2e] PASS: cell=$CELL doc-modules=$CELL_DOC_MODULES"

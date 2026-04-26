@@ -13,7 +13,7 @@
 #   5. core --dry-run                              (DRY_RUN invariant + git diff --exit-code + stdout grep)
 #   6. core --archetype invalid-foo                (Stage B error path V28)
 
-set -uo pipefail
+set -euo pipefail  # -e added 2026-04-26 after Codex caught a verify FAIL that scaffold-e2e silently swallowed.
 
 CELL=""
 DOC_MODULES=""

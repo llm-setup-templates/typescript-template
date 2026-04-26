@@ -3,3 +3,18 @@ node_modules/
 coverage/
 *.min.js
 package-lock.json
+
+# Template-authored docs / agent rules / GitHub forms have their own formatting
+# conventions (line breaks, hanging indent, GitHub forms YAML with embedded
+# Markdown). Prettier's defaults reformat them aggressively, so they are
+# explicitly out-of-scope for `prettier --check .`. Edits to these files are
+# guarded by markdownlint / yamllint where appropriate, not Prettier.
+.claude/
+.github/
+docs/
+README.md
+README.ko.md
+CLAUDE.md
+SETUP.md
+RATIONALE.md
+CODERABBIT-PROMPT-GUIDE.md

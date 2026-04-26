@@ -8,11 +8,14 @@ on:
 
 jobs:
   quality:
-    name: Format · Typecheck · Architecture · Lint · Test · Build
+    name: Format * Typecheck * Architecture * Lint * Test * Build
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # commitlint scans pull-request commit range; needs full history
+          fetch-depth: 0
 
       - name: Validate commit messages
         uses: wagoid/commitlint-github-action@v6
@@ -34,14 +37,14 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
-      - name: Lint
-        run: npm run lint
-
       - name: Architecture boundary check
         run: npm run depcruise
 
+      - name: Lint
+        run: npm run lint
+
       - name: Test
-        run: npm run test:coverage
+        run: npm run test
 
       - name: Build
         run: npm run build

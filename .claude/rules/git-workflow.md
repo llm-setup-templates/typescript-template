@@ -35,7 +35,13 @@ that the LLM agent can execute it inline without extra file lookups.
 
 ## TypeScript-specific: Local Git Hooks (Husky)
 
-This template installs Husky 9 for local commit enforcement.
+Husky 9 is **configured at scaffold time** (hook files copied into `.husky/`,
+`package.json` carries `"prepare": "husky"`) and **activated when the user
+runs `npm install`** — npm executes the `prepare` lifecycle script, which
+runs `husky` and installs the git hook path. Until the first `npm install`,
+the hooks are dormant: a `git commit` will succeed without invoking
+lint-staged or commitlint.
+
 Spring/Python templates use `wagoid/commitlint-github-action@v6` in CI instead.
 
 ### Hook: pre-commit
@@ -48,5 +54,7 @@ Config: `commitlint.config.mjs`
 
 ### Note
 The CI workflow (`ci.yml`) also runs `wagoid/commitlint-github-action@v6` as a
-belt-and-suspenders check for commit messages on pull requests.
-The local Husky hook provides the primary first-line defense for all commits.
+belt-and-suspenders check for commit messages on pull requests. After the
+first local `npm install`, the Husky pre-commit and commit-msg hooks become
+the primary first-line defense for all commits authored on the developer
+machine.

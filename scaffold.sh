@@ -273,7 +273,10 @@ run_eval "cp -a examples/archetype-next/seed/. ."
 
 # VERSION.md major cross-check (rev.4 -- D-16 + RC-M1).
 if [[ $DRY_RUN -eq 0 ]]; then
-  SEED_NEXT_MAJOR=$(awk -F'|' '/Next\.js/{gsub(/[^0-9.]/,"",$3); print $3}' \
+  # awk anchor `/^[|] Next\.js/` matches only the table row, not the in-prose
+  # `Next.js` references in the parse-contract section (which would yield
+  # multi-line output and break the major-vs-major equality check).
+  SEED_NEXT_MAJOR=$(awk -F'|' '/^[|] Next\.js/{gsub(/[^0-9.]/,"",$3); print $3}' \
     examples/archetype-next/VERSION.md | cut -d. -f1)
   PKG_NEXT_MAJOR=$(node -p "require('./package.json').dependencies.next.replace(/[^0-9.]/g,'').split('.')[0]")
   if [[ -z "$SEED_NEXT_MAJOR" || -z "$PKG_NEXT_MAJOR" ]]; then

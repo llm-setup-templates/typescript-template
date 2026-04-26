@@ -38,7 +38,9 @@ which tests need updating based on the code change type, then re-run the loop.
 
 ## CI Parity
 
-The local verification loop MUST match the CI workflow (`.github/workflows/ci.yml`):
+The local verification loop MUST match the CI workflow (`.github/workflows/ci.yml`)
+in the same 6-slot order — Format → Typecheck → Architecture → Lint → Test → Build.
+Coverage runs only locally on demand (`npm run test:coverage`); CI runs `npm run test`.
 
 | Step | Local command | CI step name |
 |------|--------------|--------------|

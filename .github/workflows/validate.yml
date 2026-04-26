@@ -18,7 +18,7 @@ jobs:
     # Skip on derived repos (V18/T12 fix: only run inside the template).
     if: github.repository == 'llm-setup-templates/typescript-template'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -37,7 +37,7 @@ jobs:
         cell: [1, 2, 3, 4, 5, 6]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 

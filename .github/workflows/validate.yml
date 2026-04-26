@@ -1,5 +1,10 @@
 name: validate-template
 
+# Tier 1 + Tier 2 of 3-tier verification (Phase 13c).
+#   Tier 1 = validate.sh (this workflow, fast)
+#   Tier 2 = test/scaffold-e2e.sh local matrix (wired below -- runs after Tier 1)
+#   Tier 3 = Codex e2e27 no-intervention (manual, separate)
+
 on:
   push:
     branches: [main]
@@ -8,10 +13,40 @@ on:
 
 jobs:
   validate:
-    name: Static verification (validate.sh)
+    name: Tier 1 -- validate.sh
     runs-on: ubuntu-latest
+    # Skip on derived repos (V18/T12 fix: only run inside the template).
+    if: github.repository == 'llm-setup-templates/typescript-template'
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Run validate.sh
         run: bash validate.sh
+
+  scaffold-e2e:
+    name: 'Tier 2 -- scaffold-e2e cell ${{ matrix.cell }}'
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.repository == 'llm-setup-templates/typescript-template'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        cell: [1, 2, 3, 4, 5, 6]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: 'examples/archetype-next/seed/.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: 'examples/archetype-next/seed/package-lock.json'
+
+      - name: Run cell ${{ matrix.cell }}
+        run: bash test/scaffold-e2e.sh --cell ${{ matrix.cell }}

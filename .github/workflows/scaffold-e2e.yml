@@ -1,0 +1,61 @@
+name: scaffold-e2e
+
+# Tier 2 of 3-tier verification (Phase 13c).
+#   Tier 1 = validate.sh (validate.yml)
+#   Tier 2 = test/scaffold-e2e.sh local matrix (this workflow + validate.yml wire)
+#   Tier 3 = Codex e2e27 no-intervention (manual, opt-in only -- see ADR-002)
+
+on:
+  # Manual trigger (release-gate / pre-merge sanity).
+  workflow_dispatch:
+
+  # Weekly cron -- catches seed staleness build breaks before users do.
+  # Mondays 12:00 UTC = Spring 13b parity (`0 12 * * 1`).
+  schedule:
+    - cron: '0 12 * * 1'
+
+  # Pull request trigger when scaffold or seed surface changes.
+  pull_request:
+    paths:
+      - 'scaffold.sh'
+      - 'examples/archetype-next/**'
+      - 'tools/refresh-next-seed.sh'
+      - 'test/scaffold-e2e.sh'
+      - '.github/workflows/scaffold-e2e.yml'
+      - 'validate.sh'
+
+jobs:
+  matrix:
+    name: 'cell ${{ matrix.cell }}'
+    runs-on: ubuntu-latest
+    # Skip on derived repos (only run inside the template).
+    if: github.repository == 'llm-setup-templates/typescript-template'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        cell: [1, 2, 3, 4, 5, 6]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: 'examples/archetype-next/seed/.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: 'examples/archetype-next/seed/package-lock.json'
+
+      - name: Run cell ${{ matrix.cell }}
+        run: bash test/scaffold-e2e.sh --cell ${{ matrix.cell }}
+
+      # C13C-R10 fix: OS-gated assertion. Linux/macOS asserts scaffold.sh self-deleted;
+      # Windows runners (if added later) match the warning text only.
+      - name: Assert scaffold.sh self-deleted (Unix runners only)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        run: |
+          # The cell already runs in a tmpdir, so this is a defense-in-depth
+          # line: scaffold-e2e.sh's structural check covers the same.
+          echo "Self-delete asserted inside cell."

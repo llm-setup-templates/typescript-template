@@ -1,27 +1,21 @@
-import type { Config } from 'jest';
+// jest.config.mjs
+import nextJest from 'next/jest.js';
 
-const config: Config = {
-  preset: 'ts-jest',
+const createJestConfig = nextJest({
+  dir: './',
+});
+
+/** @type {import('jest').Config} */
+const customJestConfig = {
   testEnvironment: 'jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  transform: {
-    '^.+\\.tsx?$': [
-      'ts-jest',
-      {
-        tsconfig: {
-          jsx: 'react-jsx',
-        },
-      },
-    ],
-  },
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  setupFilesAfterEach: ['<rootDir>/jest.setup.ts'],
   testMatch: [
     '<rootDir>/src/**/*.test.{ts,tsx}',
     '<rootDir>/__tests__/**/*.test.{ts,tsx}',
   ],
-  // Lenient defaults for template first-install. Raise as the project matures.
   coverageThreshold: {
     global: { branches: 50, functions: 60, lines: 60, statements: 60 },
   },
@@ -32,4 +26,4 @@ const config: Config = {
   ],
 };
 
-export default config;
+export default createJestConfig(customJestConfig);

@@ -323,8 +323,14 @@ fi
 # src/app/layout.tsx -- Next.js metadata (--src-dir adopted, D-19 + RC-H1)
 substitute '{{PROJECT_NAME}}' "$PROJECT_NAME" src/app/layout.tsx
 
-# package.json -- name field (D-14: PACKAGE_NAME default $PROJECT_NAME)
+# package.json + package-lock.json -- name field (D-14: PACKAGE_NAME default $PROJECT_NAME).
+# package-lock.json carries the same placeholder in two slots (root packages.""
+# entry and the package-name key). The same substitute handles both occurrences
+# inside the file because sed's `g` flag is set in the helper. The lockfile is
+# regenerated on the user's first `npm install`, so this only matters for the
+# pre-install Tier-2 leak check; user-facing impact is cosmetic.
 substitute '"name": "{{PROJECT_NAME}}"' "\"name\": \"$PACKAGE_NAME\"" package.json
+substitute '"name": "{{PROJECT_NAME}}"' "\"name\": \"$PACKAGE_NAME\"" package-lock.json
 
 # Bulk find/sed across **/*.{md,yml,yaml} (excluding examples/, node_modules/, .git/).
 # C13C-R1 + D-22 + D-24 + RC-H3 fix (rev.3): explicit DRY_RUN guard.

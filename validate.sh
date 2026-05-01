@@ -22,6 +22,15 @@ PLACEHOLDER_ALLOWLIST=(
   "examples/archetype-next/seed/package.json"
   "examples/archetype-next/seed/package-lock.json"
   "examples/archetype-next/seed/src/app/layout.tsx"
+  # === ADDED for archetype-ddd-pilot (Phase E typescript-ddd, ADR-005) ===
+  # These entries are added BEFORE archetype-ddd-pilot/seed/ files are created
+  # (Wave 0 T0.5 lands in same PR ahead of Wave 1 T1.1). False-positive-safe:
+  # V22 only fires if the actual file contains {{...}} AND is not on this list.
+  "examples/archetype-ddd-pilot/seed/package.json"
+  "examples/archetype-ddd-pilot/seed/package-lock.json"
+  "examples/archetype-ddd-pilot/seed/src/app/layout.tsx"
+  "examples/archetype-ddd-pilot/seed/src/app/orders/[id]/page.tsx"
+  # === END Phase E typescript-ddd additions ===
   "docs/architecture/decisions/_ADR-template.md"
   "docs/architecture/decisions/_RFC-template.md"
   "docs/requirements/_FR-template.md"

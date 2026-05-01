@@ -180,3 +180,18 @@ root `app/layout.tsx`. ALLOWLIST entries reflect the actual paths.
 The grammar `\{\{[A-Z_]+\}\}` (D-23) is the only legal placeholder shape;
 soft variants like `{{project-name}}` or `<<NAME>>` are forbidden. This
 keeps the V22 grep deterministic and authoring rules single-source.
+
+---
+
+## archetype-ddd-pilot 분기 사유 (Phase E typescript-ddd, 2026-05-02)
+
+ADR-002 §"single archetype" 결정의 재해석 — "single **production starter** archetype"으로 좁히고 별도 학습 archetype `ddd-pilot`을 추가한다.
+
+상세는 [ADR-005](./docs/architecture/decisions/ADR-005-archetype-ddd-pilot-rationale.md) 참조. 핵심 메시지:
+
+- archetype-next는 production 시작점 (minimal — create-next-app default + jest + native fetch + Tailwind 단독)
+- archetype-ddd-pilot은 학습 archetype (fully wired DDD/TDD + production-realistic pattern: Vitest 4 browser mode + Axios + Tailwind + cn() + dot-role suffix + FSD-DDD hybrid + Order/OrderItem 단일 aggregate)
+- 두 archetype 동시 보유는 학습 메시지 분리 + Mind Signal 정합 + lapidix/nextjs-fsd-ddd-example 직접 경쟁 차별화 목적
+- 14a Revision trigger 2026-11-01 inheritance (parent ADR-004 "0-external-usage phase")
+
+이 분기가 시간이 지나면서 "왜 ddd-pilot이 별도 archetype인가"라는 질문을 받을 때, ADR-005의 4 unique 가치축 (LLM agent intent / Spring E0 학습 매핑 / dep-cruiser FE-DDD 7 rule / Phase E sequence companion)이 standalone DDD example (lapidix 등)과의 차별화 근거다.

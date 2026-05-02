@@ -13,6 +13,7 @@ flowchart LR
   clone --> scaffold --> verify --> ci
   subgraph A["scaffold archetypes"]
     next["archetype-next (active)"]
+    dddpilot["archetype-ddd-pilot (active)"]
     nodecli["node-cli (reserved)"]
     library["library (reserved)"]
   end
@@ -84,7 +85,7 @@ Optional:
   --package-name <name>     npm package name. Defaults to --project-name.
                             npm scope supported: @org/name.
                             Pattern: ^(@[a-z0-9-]+/)?[a-z0-9][a-z0-9-]*$
-  --archetype <name>        next (default, only implemented).
+  --archetype <name>        next (default) or ddd-pilot.
                             Reserved: node-cli, library (exit 1 with explicit message).
   --doc-modules <list>      comma-separated from {core,reports,briefings,extended}
                             default: core. 'core' is mandatory.
@@ -109,23 +110,17 @@ Optional:
 `validate.sh` presence as a freshness marker; if missing (because a previous
 scaffold run removed it), the script refuses to run and instructs you to re-clone.
 
-## 3. Archetype: `next` (Reserved: `node-cli`, `library`)
+## 3. Archetypes
 
-This template currently ships **one archetype**: production-grade Next.js 16
-App Router with:
+This template ships **two archetypes**:
 
-- `src/app/` — Next.js App Router (created with `create-next-app --src-dir`)
-- `src/{shared,entities,features,widgets}/` — Feature-Sliced Design 5 layers
-- TypeScript strict + Tailwind v4 (zero-config: `postcss.config.mjs` + `globals.css` `@import "tailwindcss"`)
-- ESLint 9 flat config + `eslint-plugin-fsd-lint` (forbidden-imports / no-relative-imports / no-public-api-sidestep)
-- Jest 29 with `next/jest` preset (Next 16 RSC compatibility — see [RFC-001](docs/architecture/decisions/RFC-001-vitest-migration.md) for Vitest migration triggers)
-- Husky 9 (pre-commit + commit-msg) — activated on first `npm install` via the `prepare` script
-- Dependency Cruiser for FSD layer enforcement
-- CodeRabbit (`.coderabbit.yaml`)
+### 3.1 archetype-next (production starter)
+Production-grade Next.js 16 baseline: `create-next-app --src-dir` + Jest 29 + native fetch + Tailwind v4 zero-config + ESLint 9 + Husky 9 + Dependency Cruiser FSD. Use for new production apps.
 
-`--archetype node-cli` and `--archetype library` are reserved (Stage B exits
-1 with explicit message). They are **non-stable until implemented** — see
-[ADR-002 § Reserved Archetypes](docs/architecture/decisions/ADR-002-clone-script-scaffolding.md).
+### 3.2 archetype-ddd-pilot (DDD/TDD learning track)
+Production-realistic learning archetype: Vitest 4 (browser mode + Playwright Chromium) + Axios + Tailwind v4 + cn() + dot-role suffix + FSD-DDD hybrid + Order/OrderItem single-aggregate pilot. Mirrors Mind Signal frontend pattern. After scaffold + `npm install`, run `npx playwright install --with-deps chromium` (one-time) before `npm run verify`. See [examples/archetype-ddd-pilot/seed/README.md](./examples/archetype-ddd-pilot/seed/README.md) for full spec + 4 unique 가치축 + vs lapidix comparison + ADR-005 분기 사유.
+
+`--archetype node-cli` and `--archetype library` are reserved (Stage B exits 1 with an explicit message). See [ADR-002 § Reserved Archetypes](docs/architecture/decisions/ADR-002-clone-script-scaffolding.md) and [ADR-005](docs/architecture/decisions/ADR-005-archetype-ddd-pilot-rationale.md) for the dual-archetype rationale.
 
 ## 4. Publish to GitHub (optional)
 
@@ -197,6 +192,7 @@ grep -n "YOUR_ORG\|YOUR_USERNAME" .github/CODEOWNERS  # must be empty
 | `ERROR: validate.sh not found` | scaffold.sh already ran once | Re-clone the template — scaffold.sh is single-use |
 | `ERROR: scaffold.sh must be executed by Bash.` | Invoked via dash/sh/zsh that parsed the script body | Prefix `bash`: `bash ./scaffold.sh --project-name X --archetype next`. On Windows use Git Bash or WSL. |
 | `./scaffold.sh` in PowerShell appears to do nothing (exit 0, no output, no scaffolding) | PowerShell's `.\<name>` form bypasses `.sh` file-association dispatch for headless invocations. Silent no-op; script body never parsed. | Always use `bash ./scaffold.sh ...` explicitly. On Windows prefer Git Bash or WSL over PowerShell. See [RATIONALE.md § PowerShell Silent-No-Op](./RATIONALE.md). |
+| `ERROR: examples/archetype-ddd-pilot/VERSION.md Next major (X) != package.json (Y).` | ddd-pilot seed/package.json drifted from VERSION.md | Bump VERSION.md + seed/package.json `dependencies.next` together. |
 | `ERROR: --archetype <foo> is reserved but not yet implemented` | `--archetype node-cli` or `--archetype library` passed | Use `--archetype next` (only implemented) or omit (default). Reservation tracked in [ADR-002](docs/architecture/decisions/ADR-002-clone-script-scaffolding.md). |
 | `ERROR: unknown archetype: <foo>` | Typo in `--archetype` value | Use `next`. |
 | `ERROR: --project-name is required` | `--project-name` omitted | Pass `--project-name <hyphen-case>`. There is no fallback to the current directory name. |

@@ -8,9 +8,12 @@ export default [
   {
     plugins: { 'fsd-lint': fsdLint },
     rules: {
-      'fsd-lint/forbidden-imports': ['error', {
-        layers: ['app', 'widgets', 'features', 'entities', 'shared'],
-      }],
+      'fsd-lint/forbidden-imports': [
+        'error',
+        {
+          layers: ['app', 'widgets', 'features', 'entities', 'shared'],
+        },
+      ],
       'fsd-lint/no-relative-imports': 'error',
       'fsd-lint/no-public-api-sidestep': 'error',
     },

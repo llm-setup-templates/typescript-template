@@ -56,7 +56,9 @@ export function PlaceOrderForm() {
   };
 
   const updateItem = (idx: number, patch: Partial<(typeof items)[number]>) => {
-    setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
+    setItems((prev) =>
+      prev.map((it, i) => (i === idx ? { ...it, ...patch } : it))
+    );
   };
 
   return (

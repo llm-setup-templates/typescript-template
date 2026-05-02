@@ -20,7 +20,7 @@ export function usePlaceOrder() {
         setPending(false);
       }
     },
-    [placeOrder],
+    [placeOrder]
   );
 
   return { place, error, pending };

@@ -2,7 +2,9 @@
   "name": "{{PROJECT_NAME}}",
   "version": "0.1.0",
   "private": true,
-  "engines": { "node": ">=20.9 <23" },
+  "engines": {
+    "node": ">=20.9 <23"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

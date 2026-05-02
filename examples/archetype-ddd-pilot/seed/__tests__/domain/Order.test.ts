@@ -11,7 +11,7 @@ describe('Order', () => {
   const item = OrderItem.create(
     'p1',
     2,
-    Money.from({ amount: 100, currency: 'KRW' }),
+    Money.from({ amount: 100, currency: 'KRW' })
   );
 
   it('creates with CREATED status + computes total', () => {
@@ -52,12 +52,12 @@ describe('Order', () => {
     const krw = OrderItem.create(
       'a',
       1,
-      Money.from({ amount: 100, currency: 'KRW' }),
+      Money.from({ amount: 100, currency: 'KRW' })
     );
     const usd = OrderItem.create(
       'b',
       1,
-      Money.from({ amount: 100, currency: 'USD' }),
+      Money.from({ amount: 100, currency: 'USD' })
     );
     expect(() => Order.create([krw, usd])).toThrow(InvariantViolationError);
   });

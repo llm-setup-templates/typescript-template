@@ -13,15 +13,16 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 
 const seedRequest = () => ({
   items: [
-    { productId: 'p1', quantity: 1, price: { amount: 100, currency: 'KRW' as const } },
+    {
+      productId: 'p1',
+      quantity: 1,
+      price: { amount: 100, currency: 'KRW' as const },
+    },
   ],
 });
 
 async function seedOneOrder() {
-  const hook = renderHook(
-    () => ({ ctx: useOrder() }),
-    { wrapper },
-  );
+  const hook = renderHook(() => ({ ctx: useOrder() }), { wrapper });
   await act(async () => {
     await hook.result.current.ctx.placeOrder(seedRequest());
   });
@@ -34,7 +35,7 @@ describe('useCancelOrder', () => {
     const orderId = seeded.result.current.ctx.orders[0].id;
     const { result } = renderHook(
       () => ({ cancel: useCancelOrder(), ctx: useOrder() }),
-      { wrapper: ({ children }) => wrapper({ children }) },
+      { wrapper: ({ children }) => wrapper({ children }) }
     );
     // Re-seed because new wrapper has fresh provider
     await act(async () => {
@@ -45,7 +46,7 @@ describe('useCancelOrder', () => {
       await result.current.cancel.cancel(id);
     });
     await waitFor(() =>
-      expect(result.current.ctx.orders[0].status).toBe('CANCELLED'),
+      expect(result.current.ctx.orders[0].status).toBe('CANCELLED')
     );
     expect(orderId).toBeDefined();
   });
@@ -58,19 +59,23 @@ describe('useCancelOrder', () => {
           {
             id: 'order_done',
             items: [
-              { productId: 'p1', quantity: 1, price: { amount: 100, currency: 'KRW' } },
+              {
+                productId: 'p1',
+                quantity: 1,
+                price: { amount: 100, currency: 'KRW' },
+              },
             ],
             status: 'DELIVERED',
             total: { amount: 100, currency: 'KRW' },
             createdAt: '2026-05-02T00:00:00.000Z',
           },
-          { status: 201 },
-        ),
-      ),
+          { status: 201 }
+        )
+      )
     );
     const { result } = renderHook(
       () => ({ cancel: useCancelOrder(), ctx: useOrder() }),
-      { wrapper },
+      { wrapper }
     );
     await act(async () => {
       await result.current.ctx.placeOrder(seedRequest());
@@ -80,14 +85,14 @@ describe('useCancelOrder', () => {
       await result.current.cancel.cancel(id);
     });
     expect(result.current.cancel.error).toBeInstanceOf(
-      InvalidStatusTransitionError,
+      InvalidStatusTransitionError
     );
   });
 
   it('4xx rollback: state is restored on server reject', async () => {
     const { result } = renderHook(
       () => ({ cancel: useCancelOrder(), ctx: useOrder() }),
-      { wrapper },
+      { wrapper }
     );
     await act(async () => {
       await result.current.ctx.placeOrder(seedRequest());
@@ -95,21 +100,21 @@ describe('useCancelOrder', () => {
     const id = result.current.ctx.orders[0].id;
     server.use(
       http.post('http://localhost:3001/orders/:id/cancel', () =>
-        HttpResponse.json({ message: 'nope' }, { status: 400 }),
-      ),
+        HttpResponse.json({ message: 'nope' }, { status: 400 })
+      )
     );
     await act(async () => {
       await result.current.cancel.cancel(id);
     });
     await waitFor(() =>
-      expect(result.current.ctx.orders[0].status).toBe('CREATED'),
+      expect(result.current.ctx.orders[0].status).toBe('CREATED')
     );
   });
 
   it('network rollback: state is restored on transport failure', async () => {
     const { result } = renderHook(
       () => ({ cancel: useCancelOrder(), ctx: useOrder() }),
-      { wrapper },
+      { wrapper }
     );
     await act(async () => {
       await result.current.ctx.placeOrder(seedRequest());
@@ -117,14 +122,14 @@ describe('useCancelOrder', () => {
     const id = result.current.ctx.orders[0].id;
     server.use(
       http.post('http://localhost:3001/orders/:id/cancel', () =>
-        HttpResponse.error(),
-      ),
+        HttpResponse.error()
+      )
     );
     await act(async () => {
       await result.current.cancel.cancel(id);
     });
     await waitFor(() =>
-      expect(result.current.ctx.orders[0].status).toBe('CREATED'),
+      expect(result.current.ctx.orders[0].status).toBe('CREATED')
     );
   });
 });

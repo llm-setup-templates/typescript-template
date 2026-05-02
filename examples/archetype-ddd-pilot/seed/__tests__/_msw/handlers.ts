@@ -12,26 +12,26 @@ const sampleOrder = {
 
 export const handlers = [
   http.get('http://localhost:3001/orders', () =>
-    HttpResponse.json({ orders: [sampleOrder] }),
+    HttpResponse.json({ orders: [sampleOrder] })
   ),
   http.get('http://localhost:3001/orders/:id', ({ params }) =>
-    HttpResponse.json({ ...sampleOrder, id: String(params.id) }),
+    HttpResponse.json({ ...sampleOrder, id: String(params.id) })
   ),
   http.post('http://localhost:3001/orders', () =>
-    HttpResponse.json(sampleOrder, { status: 201 }),
+    HttpResponse.json(sampleOrder, { status: 201 })
   ),
   http.post('http://localhost:3001/orders/:id/cancel', ({ params }) =>
     HttpResponse.json({
       ...sampleOrder,
       id: String(params.id),
       status: 'CANCELLED',
-    }),
+    })
   ),
   http.post('http://localhost:3001/orders/:id/pay', ({ params }) =>
     HttpResponse.json({
       ...sampleOrder,
       id: String(params.id),
       status: 'PAID',
-    }),
+    })
   ),
 ];

@@ -21,7 +21,7 @@ export function OrderStatusBadge({
       className={cn(
         'inline-block rounded px-2 py-0.5 text-xs font-medium',
         STATUS_VARIANT[status],
-        className,
+        className
       )}
     >
       {status}

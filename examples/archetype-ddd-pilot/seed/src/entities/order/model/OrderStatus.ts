@@ -10,7 +10,7 @@ const TRANSITIONS: Record<OrderStatusDto, ReadonlySet<OrderStatusDto>> = {
 
 export function canTransitionTo(
   from: OrderStatusDto,
-  to: OrderStatusDto,
+  to: OrderStatusDto
 ): boolean {
   return TRANSITIONS[from].has(to);
 }

@@ -15,7 +15,7 @@ export class Order {
     public readonly items: ReadonlyArray<OrderItem>,
     private _status: OrderStatusDto,
     public readonly total: Money,
-    public readonly createdAt: string,
+    public readonly createdAt: string
   ) {}
 
   static create(items: OrderItem[]): Order {
@@ -24,19 +24,19 @@ export class Order {
     const currency = items[0].price.currency;
     if (!items.every((i) => i.price.currency === currency)) {
       throw new InvariantViolationError(
-        'All OrderItem must share the same currency',
+        'All OrderItem must share the same currency'
       );
     }
     const total = items.reduce(
       (sum, item) => sum.add(item.total()),
-      Money.zero(currency),
+      Money.zero(currency)
     );
     return new Order(
       generateId(),
       items,
       'CREATED',
       total,
-      new Date().toISOString(),
+      new Date().toISOString()
     );
   }
 
@@ -47,7 +47,7 @@ export class Order {
       parsed.items.map(OrderItem.fromDto),
       parsed.status,
       Money.from(parsed.total),
-      parsed.createdAt,
+      parsed.createdAt
     );
   }
 

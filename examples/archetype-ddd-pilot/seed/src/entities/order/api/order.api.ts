@@ -18,21 +18,21 @@ import type {
 export const orderApi = {
   getOrder: cache(
     (id: string): Promise<AxiosResponse<OrderResponse>> =>
-      api.get<OrderResponse>(`/orders/${id}`),
+      api.get<OrderResponse>(`/orders/${id}`)
   ),
   getOrders: cache(
     (): Promise<AxiosResponse<OrderListResponse>> =>
-      api.get<OrderListResponse>('/orders'),
+      api.get<OrderListResponse>('/orders')
   ),
   placeOrder: (
-    request: PlaceOrderRequest,
+    request: PlaceOrderRequest
   ): Promise<AxiosResponse<OrderResponse>> =>
     api.post<OrderResponse>('/orders', request),
   cancelOrder: (id: string): Promise<AxiosResponse<OrderResponse>> =>
     api.post<OrderResponse>(`/orders/${id}/cancel`),
   payOrder: (
     id: string,
-    paymentRef: string,
+    paymentRef: string
   ): Promise<AxiosResponse<OrderResponse>> =>
     api.post<OrderResponse>(`/orders/${id}/pay`, { paymentRef }),
 };

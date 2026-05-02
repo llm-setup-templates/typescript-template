@@ -35,7 +35,7 @@ export function usePayOrder() {
         setPending(false);
       }
     },
-    [orders, payOrder],
+    [orders, payOrder]
   );
 
   return { pay, error, pending };

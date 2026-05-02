@@ -5,7 +5,7 @@ export class OrderItem {
   private constructor(
     public readonly productId: string,
     public readonly quantity: number,
-    public readonly price: Money,
+    public readonly price: Money
   ) {
     if (quantity <= 0) throw new Error('OrderItem.quantity must be positive');
   }

@@ -37,7 +37,7 @@ export function useCancelOrder() {
         setPending(false);
       }
     },
-    [orders, cancelOrder],
+    [orders, cancelOrder]
   );
 
   return { cancel, error, pending };

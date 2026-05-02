@@ -3,7 +3,7 @@ import { isAxiosError } from 'axios';
 export class ApiClientError extends Error {
   constructor(
     public status: number,
-    msg: string,
+    msg: string
   ) {
     super(msg);
     this.name = 'ApiClientError';
@@ -13,7 +13,7 @@ export class ApiClientError extends Error {
 export class ApiServerError extends Error {
   constructor(
     public status: number,
-    msg: string,
+    msg: string
   ) {
     super(msg);
     this.name = 'ApiServerError';
@@ -28,7 +28,7 @@ export class ApiNetworkError extends Error {
 }
 
 export function fromAxiosError(
-  e: unknown,
+  e: unknown
 ): ApiClientError | ApiServerError | ApiNetworkError {
   if (isAxiosError(e)) {
     if (e.response) {

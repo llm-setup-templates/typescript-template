@@ -34,7 +34,8 @@ module.exports = {
       // NOTE: $1 back-reference in pathNot may not work in all dependency-cruiser
       // versions. Primary enforcement is via eslint-plugin-fsd-lint's forbidden-imports.
       // (R-09 fix: archetype-next disclaimer mirrored)
-      comment: 'Features must not import from other features (barrel-only via shared if needed)',
+      comment:
+        'Features must not import from other features (barrel-only via shared if needed)',
       severity: 'error',
       from: { path: '^src/features/([^/]+)/' },
       to: { path: '^src/features/([^/]+)/', pathNot: '^src/features/$1/' },
@@ -46,14 +47,23 @@ module.exports = {
       // Preserves DISCUSS Q5 LOCK body (entities/model/ -> shared/api/ + entities/{name}/api/) +
       // extends to forbid direct axios import. This way the domain model cannot reach HTTP via
       // (a) internal api wrapper, nor (b) axios directly -- guarantees domain purity.
-      comment: 'R-FE-3: Domain model (entities/{name}/model/) must not depend on api wrapper layers (shared/api, entities/{name}/api) nor on HTTP libs (axios) directly. HTTP fetch belongs in api/ adapters.',
+      comment:
+        'R-FE-3: Domain model (entities/{name}/model/) must not depend on api wrapper layers (shared/api, entities/{name}/api) nor on HTTP libs (axios) directly. HTTP fetch belongs in api/ adapters.',
       severity: 'error',
       from: { path: '^src/entities/[^/]+/model/' },
-      to: { path: ['^src/shared/api/', '^src/entities/[^/]+/api/', '^node_modules/axios', '^node_modules/node-fetch'] },
+      to: {
+        path: [
+          '^src/shared/api/',
+          '^src/entities/[^/]+/api/',
+          '^node_modules/axios',
+          '^node_modules/node-fetch',
+        ],
+      },
     },
     {
       name: 'R-FE-4-no-upward-from-domain',
-      comment: 'R-FE-4: Domain model must not depend on application/UI layers (features, widgets, app).',
+      comment:
+        'R-FE-4: Domain model must not depend on application/UI layers (features, widgets, app).',
       severity: 'error',
       from: { path: '^src/entities/[^/]+/model/' },
       to: { path: ['^src/features/', '^src/widgets/', '^src/app/'] },

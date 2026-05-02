@@ -31,7 +31,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         throw mapped;
       }
     },
-    [],
+    []
   );
 
   const cancelOrder: OrderContextValue['cancelOrder'] = useCallback(
@@ -47,15 +47,11 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         ...target.toDto(),
         status: 'CANCELLED',
       });
-      setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? optimistic : o)),
-      );
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? optimistic : o)));
       try {
         const res = await orderApi.cancelOrder(orderId);
         const updated = Order.fromDto(res.data);
-        setOrders((prev) =>
-          prev.map((o) => (o.id === orderId ? updated : o)),
-        );
+        setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
       } catch (e) {
         const mapped = fromAxiosError(e);
         setOrders(snapshot);
@@ -63,7 +59,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         throw mapped;
       }
     },
-    [orders],
+    [orders]
   );
 
   const payOrder: OrderContextValue['payOrder'] = useCallback(
@@ -76,15 +72,11 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       }
       const snapshot = orders;
       const optimistic = Order.fromDto({ ...target.toDto(), status: 'PAID' });
-      setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? optimistic : o)),
-      );
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? optimistic : o)));
       try {
         const res = await orderApi.payOrder(orderId, paymentRef);
         const updated = Order.fromDto(res.data);
-        setOrders((prev) =>
-          prev.map((o) => (o.id === orderId ? updated : o)),
-        );
+        setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
       } catch (e) {
         const mapped = fromAxiosError(e);
         setOrders(snapshot);
@@ -92,7 +84,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         throw mapped;
       }
     },
-    [orders],
+    [orders]
   );
 
   return (

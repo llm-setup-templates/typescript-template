@@ -1,7 +1,7 @@
 export class Money {
   private constructor(
     public readonly amount: number,
-    public readonly currency: 'KRW' | 'USD',
+    public readonly currency: 'KRW' | 'USD'
   ) {
     if (!Number.isFinite(amount) || amount < 0) {
       throw new Error('Money.amount must be non-negative finite');
@@ -15,7 +15,9 @@ export class Money {
   }
   add(other: Money): Money {
     if (this.currency !== other.currency) {
-      throw new Error(`Currency mismatch: ${this.currency} vs ${other.currency}`);
+      throw new Error(
+        `Currency mismatch: ${this.currency} vs ${other.currency}`
+      );
     }
     return new Money(this.amount + other.amount, this.currency);
   }

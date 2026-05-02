@@ -13,7 +13,11 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 
 const seedRequest = () => ({
   items: [
-    { productId: 'p1', quantity: 1, price: { amount: 100, currency: 'KRW' as const } },
+    {
+      productId: 'p1',
+      quantity: 1,
+      price: { amount: 100, currency: 'KRW' as const },
+    },
   ],
 });
 
@@ -21,7 +25,7 @@ describe('usePayOrder', () => {
   it('happy path: PAID committed', async () => {
     const { result } = renderHook(
       () => ({ pay: usePayOrder(), ctx: useOrder() }),
-      { wrapper },
+      { wrapper }
     );
     await act(async () => {
       await result.current.ctx.placeOrder(seedRequest());
@@ -31,7 +35,7 @@ describe('usePayOrder', () => {
       await result.current.pay.pay(id, 'ref_test');
     });
     await waitFor(() =>
-      expect(result.current.ctx.orders[0].status).toBe('PAID'),
+      expect(result.current.ctx.orders[0].status).toBe('PAID')
     );
   });
 
@@ -42,19 +46,23 @@ describe('usePayOrder', () => {
           {
             id: 'order_cancelled',
             items: [
-              { productId: 'p1', quantity: 1, price: { amount: 100, currency: 'KRW' } },
+              {
+                productId: 'p1',
+                quantity: 1,
+                price: { amount: 100, currency: 'KRW' },
+              },
             ],
             status: 'CANCELLED',
             total: { amount: 100, currency: 'KRW' },
             createdAt: '2026-05-02T00:00:00.000Z',
           },
-          { status: 201 },
-        ),
-      ),
+          { status: 201 }
+        )
+      )
     );
     const { result } = renderHook(
       () => ({ pay: usePayOrder(), ctx: useOrder() }),
-      { wrapper },
+      { wrapper }
     );
     await act(async () => {
       await result.current.ctx.placeOrder(seedRequest());
@@ -64,14 +72,14 @@ describe('usePayOrder', () => {
       await result.current.pay.pay(id, 'ref_x');
     });
     expect(result.current.pay.error).toBeInstanceOf(
-      InvalidStatusTransitionError,
+      InvalidStatusTransitionError
     );
   });
 
   it('4xx rollback: state restored', async () => {
     const { result } = renderHook(
       () => ({ pay: usePayOrder(), ctx: useOrder() }),
-      { wrapper },
+      { wrapper }
     );
     await act(async () => {
       await result.current.ctx.placeOrder(seedRequest());
@@ -79,21 +87,21 @@ describe('usePayOrder', () => {
     const id = result.current.ctx.orders[0].id;
     server.use(
       http.post('http://localhost:3001/orders/:id/pay', () =>
-        HttpResponse.json({ message: 'nope' }, { status: 400 }),
-      ),
+        HttpResponse.json({ message: 'nope' }, { status: 400 })
+      )
     );
     await act(async () => {
       await result.current.pay.pay(id, 'ref_test');
     });
     await waitFor(() =>
-      expect(result.current.ctx.orders[0].status).toBe('CREATED'),
+      expect(result.current.ctx.orders[0].status).toBe('CREATED')
     );
   });
 
   it('network rollback: state restored', async () => {
     const { result } = renderHook(
       () => ({ pay: usePayOrder(), ctx: useOrder() }),
-      { wrapper },
+      { wrapper }
     );
     await act(async () => {
       await result.current.ctx.placeOrder(seedRequest());
@@ -101,14 +109,14 @@ describe('usePayOrder', () => {
     const id = result.current.ctx.orders[0].id;
     server.use(
       http.post('http://localhost:3001/orders/:id/pay', () =>
-        HttpResponse.error(),
-      ),
+        HttpResponse.error()
+      )
     );
     await act(async () => {
       await result.current.pay.pay(id, 'ref_test');
     });
     await waitFor(() =>
-      expect(result.current.ctx.orders[0].status).toBe('CREATED'),
+      expect(result.current.ctx.orders[0].status).toBe('CREATED')
     );
   });
 });

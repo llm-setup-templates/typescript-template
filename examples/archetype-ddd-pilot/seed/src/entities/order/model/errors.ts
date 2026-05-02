@@ -8,7 +8,7 @@ export class InvariantViolationError extends Error {
 export class InvalidStatusTransitionError extends Error {
   constructor(
     public readonly from: string,
-    public readonly to: string,
+    public readonly to: string
   ) {
     super(`Invalid transition: ${from} -> ${to}`);
     this.name = 'InvalidStatusTransitionError';

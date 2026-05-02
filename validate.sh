@@ -29,7 +29,7 @@ PLACEHOLDER_ALLOWLIST=(
   "examples/archetype-ddd-pilot/seed/package.json"
   "examples/archetype-ddd-pilot/seed/package-lock.json"
   "examples/archetype-ddd-pilot/seed/src/app/layout.tsx"
-  "examples/archetype-ddd-pilot/seed/src/app/orders/[id]/page.tsx"
+  "examples/archetype-ddd-pilot/seed/README.md"
   # === END Phase E typescript-ddd additions ===
   "docs/architecture/decisions/_ADR-template.md"
   "docs/architecture/decisions/_RFC-template.md"
@@ -494,8 +494,9 @@ echo "SKIP [V25] migrated to PR template checklist"
 
 echo ""
 echo "=== V26: jest.config.mjs uses next/jest (.js suffix mandatory) ==="
-# R16 fix: ESM-compatible import path.
-JEST_CFG="$SEED/jest.config.mjs"
+# R16 fix: ESM-compatible import path. Path is archetype-next-specific
+# (ddd-pilot uses Vitest; V21-bis-ddd-pilot covers vitest.config.ts).
+JEST_CFG="$ROOT/examples/archetype-next/seed/jest.config.mjs"
 if [ -f "$JEST_CFG" ] && grep -q "from 'next/jest.js'" "$JEST_CFG"; then
   echo "PASS [V26] jest.config.mjs imports from 'next/jest.js'"
   PASS=$((PASS + 1))

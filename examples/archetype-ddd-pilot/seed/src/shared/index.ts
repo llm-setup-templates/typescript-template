@@ -8,4 +8,3 @@ export {
   fromAxiosError,
 } from './lib/errors';
 export { api } from './api/base';
-export type { OrderContextValue } from './state/order-context.contract';

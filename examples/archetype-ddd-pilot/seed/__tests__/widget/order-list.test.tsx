@@ -1,5 +1,9 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { cleanup, render, screen } from '@testing-library/react';
+
+// Browser mode runs all tests in a single page (CX2-9). Auto-cleanup is not wired
+// in @testing-library/react browser context, so we cleanup manually between tests.
+beforeEach(() => cleanup());
 import { OrderListWidget } from '@/widgets/order-list';
 import type { OrderDto } from '@/entities/order';
 

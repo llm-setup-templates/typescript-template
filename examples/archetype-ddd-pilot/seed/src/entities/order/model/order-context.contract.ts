@@ -1,4 +1,5 @@
-import type { Order, PlaceOrderRequest } from '@/entities/order';
+import type { Order } from './Order';
+import type { PlaceOrderRequest } from './order.schema';
 import type {
   ApiClientError,
   ApiServerError,

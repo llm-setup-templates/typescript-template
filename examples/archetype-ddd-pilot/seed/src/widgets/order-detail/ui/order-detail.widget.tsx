@@ -1,8 +1,8 @@
-'use client';
+﻿'use client';
 import { useMemo } from 'react';
 import { Order } from '@/entities/order';
 import type { OrderDto } from '@/entities/order';
-import { OrderStatusBadge } from '@/entities/order/ui/order-status-badge.component';
+import { OrderStatusBadge } from '@/entities/order';
 import { CancelOrderButton } from '@/features/cancel-order';
 import { PayOrderButton } from '@/features/pay-order';
 

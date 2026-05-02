@@ -1,6 +1,6 @@
-'use client';
+﻿'use client';
 import { useState, type FormEvent } from 'react';
-import { useOrder } from '@/shared/state/order-context.client';
+import { useOrder } from '@/entities/order';
 import {
   Order,
   OrderItem,
@@ -38,7 +38,7 @@ export function PlaceOrderForm() {
       Order.create(parsed.data.items.map(OrderItem.fromDto));
     } catch (err) {
       if (err instanceof InvariantViolationError) {
-        setError(`주문 무결성 위반: ${err.message}`);
+        setError(`二쇰Ц 臾닿껐???꾨컲: ${err.message}`);
         setPending(false);
         return;
       }
@@ -49,7 +49,7 @@ export function PlaceOrderForm() {
     try {
       await placeOrder(parsed.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '알 수 없는 오류');
+      setError(err instanceof Error ? err.message : '?????녿뒗 ?ㅻ쪟');
     } finally {
       setPending(false);
     }

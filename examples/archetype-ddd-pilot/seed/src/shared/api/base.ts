@@ -1,7 +1,14 @@
 import axios from 'axios';
 
+// process.env guard: Vitest browser mode evaluates this in Chromium (no `process`
+// global). Next.js statically replaces `process.env.NEXT_PUBLIC_*` at build time,
+// so the typeof guard short-circuits in the browser test runner only.
+const baseURL =
+  (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_BASE_URL) ||
+  'http://localhost:3001';
+
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001',
+  baseURL,
   headers: { 'Content-Type': 'application/json' },
 });
 

@@ -1,9 +1,9 @@
-'use client';
+﻿'use client';
 import { useState, useCallback, type ReactNode } from 'react';
-import { OrderContext } from '@/shared/state/order-context.client';
-import type { OrderContextValue } from '@/shared/state/order-context.contract';
+import { OrderContext } from '@/entities/order';
+import type { OrderContextValue } from '@/entities/order';
 import { Order, type PlaceOrderRequest } from '@/entities/order';
-import { orderApi } from '@/entities/order/api/order.api';
+import { orderApi } from '@/entities/order';
 import { fromAxiosError } from '@/shared/lib/errors';
 
 export function OrderProvider({ children }: { children: ReactNode }) {

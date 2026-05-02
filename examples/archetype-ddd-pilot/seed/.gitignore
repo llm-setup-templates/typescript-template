@@ -6,6 +6,8 @@
 # testing
 /coverage
 vitest-result.xml
+/.vitest-attachments/
+/__tests__/widget/__screenshots__/
 
 # next.js
 /.next/

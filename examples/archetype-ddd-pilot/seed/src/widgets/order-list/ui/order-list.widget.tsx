@@ -1,8 +1,8 @@
-'use client';
+﻿'use client';
 import { useMemo } from 'react';
 import { Order } from '@/entities/order';
 import type { OrderDto } from '@/entities/order';
-import { OrderStatusBadge } from '@/entities/order/ui/order-status-badge.component';
+import { OrderStatusBadge } from '@/entities/order';
 
 export function OrderListWidget({ orderDtos }: { orderDtos: OrderDto[] }) {
   const orders = useMemo(() => orderDtos.map(Order.fromDto), [orderDtos]);

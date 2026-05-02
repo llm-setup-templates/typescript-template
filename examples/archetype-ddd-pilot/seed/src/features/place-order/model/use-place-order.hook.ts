@@ -1,6 +1,6 @@
-'use client';
+﻿'use client';
 import { useState, useCallback } from 'react';
-import { useOrder } from '@/shared/state/order-context.client';
+import { useOrder } from '@/entities/order';
 import type { PlaceOrderRequest } from '@/entities/order';
 
 export function usePlaceOrder() {

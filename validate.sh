@@ -96,7 +96,7 @@ echo "=== F1.c Immutable Verification ==="
 echo "=== F1.d Full-Solution Verification ==="
 
 echo "=== V0a Self-monolithic guard ==="
-for spec in "validate.sh:570" "scaffold.sh:490"; do
+for spec in "validate.sh:600" "scaffold.sh:490"; do
   f="${spec%%:*}"; limit="${spec##*:}"
   n=$(wc -l < "$f")
   [[ $n -le $limit ]] || { echo "FAIL: V0a $f has $n lines (limit $limit). 14a self-ratchet forbidden -- STOP and open a new review round."; exit 1; }

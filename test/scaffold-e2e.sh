@@ -261,6 +261,12 @@ echo "[e2e] structural checks PASS"
 if command -v npm >/dev/null 2>&1; then
   echo "[e2e] running npm ci..."
   npm ci --no-audit --no-fund
+  # Cell 7 (ddd-pilot) needs Playwright Chromium for Vitest browser-mode widget tests.
+  # archetype-next cells (1..6) skip this -- their Jest jsdom suite has no browser deps.
+  if [ "$CELL" = "7" ]; then
+    echo "[e2e] installing Playwright Chromium (ddd-pilot browser-mode test)..."
+    npx playwright install --with-deps chromium
+  fi
   echo "[e2e] running npm run verify..."
   npm run verify
   echo "[e2e] npm run verify PASS"

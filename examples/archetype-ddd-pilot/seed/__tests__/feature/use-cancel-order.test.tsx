@@ -5,7 +5,6 @@ import { OrderProvider } from '@/app/providers/order.context';
 import { useCancelOrder } from '@/features/cancel-order';
 import { useOrder } from '@/entities/order';
 import { InvalidStatusTransitionError } from '@/entities/order';
-// eslint-disable-next-line fsd-lint/no-relative-imports -- test setup is at seed root, no slice context
 import { server } from '../../vitest.setup.unit';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (

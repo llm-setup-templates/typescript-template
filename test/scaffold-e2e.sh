@@ -159,7 +159,7 @@ bash scaffold.sh --project-name "$PROJECT_NAME" $SCAFFOLD_ARCHETYPE_ARGS --doc-m
 
 # Cell 7 archetype-ddd-pilot specific seed completeness check (R3-01/CX3-1).
 if [ "$CELL" = "7" ]; then
-  for required in package.json vitest.config.ts vitest.setup.unit.ts vitest.setup.browser.ts vitest.shims.d.ts .dependency-cruiser.cjs src/entities/order/model/Order.ts src/entities/order/model/order.schema.ts src/shared/state/order-context.contract.ts src/shared/state/order-context.client.ts; do
+  for required in package.json vitest.config.ts vitest.setup.unit.ts vitest.setup.browser.ts vitest.shims.d.ts .dependency-cruiser.cjs src/entities/order/model/Order.ts src/entities/order/model/order.schema.ts src/entities/order/model/order-context.contract.ts src/entities/order/ui/order-context.client.ts; do
     [ -f "$required" ] || { echo "FAIL [Cell7] missing post-scaffold $required"; exit 1; }
   done
   echo "PASS [Cell7] ddd-pilot seed completeness check"

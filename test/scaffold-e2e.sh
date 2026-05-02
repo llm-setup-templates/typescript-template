@@ -3,15 +3,16 @@
 #
 # Usage:
 #   bash test/scaffold-e2e.sh [doc-modules]
-#   bash test/scaffold-e2e.sh --cell <1..6>
+#   bash test/scaffold-e2e.sh --cell <1..7>
 #
-# 6 cells covered by .github/workflows/validate.yml matrix:
+# 7 cells covered by .github/workflows/scaffold-e2e.yml matrix:
 #   1. core
 #   2. core,reports
 #   3. core,reports,briefings
 #   4. core,reports,briefings,extended
 #   5. core --dry-run                              (DRY_RUN invariant + git diff --exit-code + stdout grep)
 #   6. core --archetype invalid-foo                (Stage B error path V28)
+#   7. core --archetype ddd-pilot                  (DDD/TDD pilot archetype, Phase E typescript-ddd)
 
 set -euo pipefail  # -e added 2026-04-26 after Codex caught a verify FAIL that scaffold-e2e silently swallowed.
 
@@ -44,6 +45,7 @@ case "$CELL" in
   4) CELL_DOC_MODULES="core,reports,briefings,extended" ;;
   5) CELL_DOC_MODULES="core"; CELL_EXTRA_ARGS="--dry-run"; CELL_EXPECT_DRY_RUN=1 ;;
   6) CELL_DOC_MODULES="core"; CELL_EXTRA_ARGS="--archetype invalid-foo"; CELL_EXPECT_FAIL=1; CELL_INVALID_ARCHETYPE=1 ;;
+  7) CELL_DOC_MODULES="core"; CELL_EXTRA_ARGS="--archetype ddd-pilot" ;;
   "")
     CELL_DOC_MODULES="$DOC_MODULES"
     case "$DOC_MODULES" in
@@ -51,7 +53,7 @@ case "$CELL" in
       *) echo "[e2e] invalid doc-modules: $DOC_MODULES" >&2; exit 1 ;;
     esac
     ;;
-  *) echo "[e2e] invalid cell: $CELL (valid 1..6)" >&2; exit 1 ;;
+  *) echo "[e2e] invalid cell: $CELL (valid 1..7)" >&2; exit 1 ;;
 esac
 
 TEMPLATE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -145,8 +147,25 @@ if [[ "$CELL_EXPECT_DRY_RUN" -eq 1 ]]; then
   exit 0
 fi
 
-# Cells 1-4: real scaffold execution.
-bash scaffold.sh --project-name "$PROJECT_NAME" --archetype next --doc-modules "$CELL_DOC_MODULES"
+# Cells 1-4 + Cell 7: real scaffold execution.
+# CELL_EXTRA_ARGS may already carry an --archetype flag (Cell 7 ddd-pilot).
+# When absent, default to --archetype next.
+SCAFFOLD_ARCHETYPE_ARGS="$CELL_EXTRA_ARGS"
+case "$SCAFFOLD_ARCHETYPE_ARGS" in
+  *--archetype*) ;;
+  *) SCAFFOLD_ARCHETYPE_ARGS="--archetype next $CELL_EXTRA_ARGS" ;;
+esac
+bash scaffold.sh --project-name "$PROJECT_NAME" $SCAFFOLD_ARCHETYPE_ARGS --doc-modules "$CELL_DOC_MODULES"
+
+# Cell 7 archetype-ddd-pilot specific seed completeness check (R3-01/CX3-1).
+if [ "$CELL" = "7" ]; then
+  for required in package.json vitest.config.ts vitest.setup.unit.ts vitest.setup.browser.ts vitest.shims.d.ts .dependency-cruiser.cjs src/entities/order/model/Order.ts src/entities/order/model/order.schema.ts src/entities/order/model/order-context.contract.ts src/entities/order/ui/order-context.client.ts; do
+    [ -f "$required" ] || { echo "FAIL [Cell7] missing post-scaffold $required"; exit 1; }
+  done
+  echo "PASS [Cell7] ddd-pilot seed completeness check"
+  # Tier 3 (npm ci + verify) runs in derived repo's CI. Tier 2 e2e bounds itself
+  # to scaffold + structural checks here.
+fi
 
 # 3. Structural post-conditions
 test -f package.json                        || { echo "FAIL: package.json missing"; exit 1; }
@@ -242,6 +261,12 @@ echo "[e2e] structural checks PASS"
 if command -v npm >/dev/null 2>&1; then
   echo "[e2e] running npm ci..."
   npm ci --no-audit --no-fund
+  # Cell 7 (ddd-pilot) needs Playwright Chromium for Vitest browser-mode widget tests.
+  # archetype-next cells (1..6) skip this -- their Jest jsdom suite has no browser deps.
+  if [ "$CELL" = "7" ]; then
+    echo "[e2e] installing Playwright Chromium (ddd-pilot browser-mode test)..."
+    npx playwright install --with-deps chromium
+  fi
   echo "[e2e] running npm run verify..."
   npm run verify
   echo "[e2e] npm run verify PASS"

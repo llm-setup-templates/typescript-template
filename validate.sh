@@ -22,6 +22,15 @@ PLACEHOLDER_ALLOWLIST=(
   "examples/archetype-next/seed/package.json"
   "examples/archetype-next/seed/package-lock.json"
   "examples/archetype-next/seed/src/app/layout.tsx"
+  # === ADDED for archetype-ddd-pilot (Phase E typescript-ddd, ADR-005) ===
+  # These entries are added BEFORE archetype-ddd-pilot/seed/ files are created
+  # (Wave 0 T0.5 lands in same PR ahead of Wave 1 T1.1). False-positive-safe:
+  # V22 only fires if the actual file contains {{...}} AND is not on this list.
+  "examples/archetype-ddd-pilot/seed/package.json"
+  "examples/archetype-ddd-pilot/seed/package-lock.json"
+  "examples/archetype-ddd-pilot/seed/src/app/layout.tsx"
+  "examples/archetype-ddd-pilot/seed/README.md"
+  # === END Phase E typescript-ddd additions ===
   "docs/architecture/decisions/_ADR-template.md"
   "docs/architecture/decisions/_RFC-template.md"
   "docs/requirements/_FR-template.md"
@@ -87,7 +96,7 @@ echo "=== F1.c Immutable Verification ==="
 echo "=== F1.d Full-Solution Verification ==="
 
 echo "=== V0a Self-monolithic guard ==="
-for spec in "validate.sh:570" "scaffold.sh:490"; do
+for spec in "validate.sh:600" "scaffold.sh:490"; do
   f="${spec%%:*}"; limit="${spec##*:}"
   n=$(wc -l < "$f")
   [[ $n -le $limit ]] || { echo "FAIL: V0a $f has $n lines (limit $limit). 14a self-ratchet forbidden -- STOP and open a new review round."; exit 1; }
@@ -161,20 +170,38 @@ check_gte "V7a" "FSD layers mentioned in architecture.md" "$V7_FSD" "1"
 check_gte "V7b" "no-public-api-sidestep in architecture.md" "$V7_NPS" "1"
 
 echo ""
-echo "=== V8: Node version reference (ci.yml) ==="
-V8_RESULT=$(grep "node-version" "$ROOT/examples/ci.yml" || echo "MISSING")
+echo "=== V8: Node version reference (ci.archetype-next.yml) ==="
+V8_RESULT=$(grep "node-version" "$ROOT/examples/ci.archetype-next.yml" || echo "MISSING")
 if echo "$V8_RESULT" | grep -q "node-version"; then
-  echo "PASS [V8] Node version reference in ci.yml: $V8_RESULT"
+  echo "PASS [V8] Node version reference in ci.archetype-next.yml: $V8_RESULT"
   PASS=$((PASS + 1))
 else
-  echo "FAIL [V8] Node version reference missing in ci.yml"
+  echo "FAIL [V8] Node version reference missing in ci.archetype-next.yml"
   FAIL=$((FAIL + 1))
 fi
 
 echo ""
-echo "=== V9: examples/ci.yml regression guards ==="
-check_absent "V9a" "ci.yml uses commitlint.config.mjs (not .js)" \
-  "$ROOT/examples/ci.yml" "commitlint\.config\.js[^m]"
+echo "=== V8-bis: ci.archetype-ddd-pilot.yml node-version + Playwright install ==="
+V8b_NV=$(grep "node-version" "$ROOT/examples/ci.archetype-ddd-pilot.yml" || echo "MISSING")
+if echo "$V8b_NV" | grep -q "node-version"; then
+  echo "PASS [V8-bis] node-version reference in ci.archetype-ddd-pilot.yml: $V8b_NV"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL [V8-bis] node-version reference missing in ci.archetype-ddd-pilot.yml"
+  FAIL=$((FAIL + 1))
+fi
+if grep -q "npx playwright install" "$ROOT/examples/ci.archetype-ddd-pilot.yml"; then
+  echo "PASS [V8-bis] Playwright install step present"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL [V8-bis] Playwright install step missing"
+  FAIL=$((FAIL + 1))
+fi
+
+echo ""
+echo "=== V9: examples/ci.archetype-next.yml regression guards ==="
+check_absent "V9a" "ci.archetype-next.yml uses commitlint.config.mjs (not .js)" \
+  "$ROOT/examples/ci.archetype-next.yml" "commitlint\.config\.js[^m]"
 # V9b/V9e: the underlying files (jest.config.ts, package.scripts.json) were
 # removed in T7 (LD-08 / LD-03). check_absent is a no-op for missing files,
 # which is the desired behavior post-13c.
@@ -186,6 +213,13 @@ check_absent "V9d" "husky/commit-msg has no legacy husky.sh sourcing" \
   "$ROOT/examples/husky/commit-msg" "husky\.sh"
 check_absent "V9e" "package.scripts.json does not use deprecated next lint -- file removed in T7" \
   "$ROOT/examples/package.scripts.json" '"next lint"'
+
+echo ""
+echo "=== V9f: examples/ci.archetype-ddd-pilot.yml regression guards ==="
+check_absent "V9f-a" "ci.archetype-ddd-pilot.yml uses commitlint.config.mjs (not .js)" \
+  "$ROOT/examples/ci.archetype-ddd-pilot.yml" "commitlint\.config\.js[^m]"
+check_absent "V9f-b" "ddd-pilot .husky/pre-commit has no legacy husky.sh sourcing" \
+  "$ROOT/examples/archetype-ddd-pilot/seed/.husky/pre-commit" "husky\.sh"
 
 echo ""
 echo "=== V10: depcruise wired across SETUP/seed ==="
@@ -317,58 +351,68 @@ else
 fi
 
 echo ""
-echo "=== V21: examples/archetype-next/seed/ completeness + Tailwind v4 + lockfileVersion + VERSION.md ==="
-SEED="$ROOT/examples/archetype-next/seed"
-for required in package.json package-lock.json jest.config.mjs postcss.config.mjs; do
-  if [ -f "$SEED/$required" ]; then
-    echo "PASS [V21] required seed file present: $required"
+# check_seed_completeness <archetype> <space-separated required files>
+# Re-uses the V21 body for both archetype-next (label V21) and archetype-ddd-pilot
+# (label V21-bis-ddd-pilot). Extends naturally to future archetypes (CX5-2 fix).
+check_seed_completeness() {
+  local archetype="$1"
+  local required_files="$2"
+  local seed="$ROOT/examples/archetype-${archetype}/seed"
+  local version_file="examples/archetype-${archetype}/VERSION.md"
+  local seed_marker="examples/archetype-${archetype}/SEED-LAST-UPDATED.txt"
+  local label="V21"
+  [[ "$archetype" != "next" ]] && label="V21-bis-${archetype}"
+  echo "=== ${label}: examples/archetype-${archetype}/seed/ completeness ==="
+  for required in $required_files; do
+    if [ -f "$seed/$required" ]; then
+      echo "PASS [${label}] required seed file present: $required"
+      PASS=$((PASS + 1))
+    else
+      echo "FAIL [${label}] required seed file missing: $required"
+      FAIL=$((FAIL + 1))
+    fi
+  done
+  for marker in "$version_file" "$seed_marker"; do
+    if [ -f "$ROOT/$marker" ]; then
+      echo "PASS [${label}] required seed marker present: $marker"
+      PASS=$((PASS + 1))
+    else
+      echo "FAIL [${label}] required seed marker missing: $marker"
+      FAIL=$((FAIL + 1))
+    fi
+  done
+  if [ -f "$seed/postcss.config.mjs" ] && grep -q '@tailwindcss/postcss' "$seed/postcss.config.mjs"; then
+    echo "PASS [${label}] postcss.config.mjs uses @tailwindcss/postcss"
     PASS=$((PASS + 1))
   else
-    echo "FAIL [V21] required seed file missing: $required"
+    echo "FAIL [${label}] postcss.config.mjs missing @tailwindcss/postcss"
     FAIL=$((FAIL + 1))
   fi
-done
-# Sibling seed marker files (D-15 + D-16)
-for required in examples/archetype-next/VERSION.md examples/archetype-next/SEED-LAST-UPDATED.txt; do
-  if [ -f "$ROOT/$required" ]; then
-    echo "PASS [V21] required seed marker present: $required"
+  if [ -f "$seed/src/app/globals.css" ] && grep -qE "@import [\"']tailwindcss[\"']" "$seed/src/app/globals.css"; then
+    echo "PASS [${label}] globals.css contains @import tailwindcss"
     PASS=$((PASS + 1))
   else
-    echo "FAIL [V21] required seed marker missing: $required"
+    echo "FAIL [${label}] globals.css missing @import tailwindcss"
     FAIL=$((FAIL + 1))
   fi
-done
-# Tailwind v4 PostCSS shape
-if [ -f "$SEED/postcss.config.mjs" ] && grep -q '@tailwindcss/postcss' "$SEED/postcss.config.mjs"; then
-  echo "PASS [V21] postcss.config.mjs uses @tailwindcss/postcss"
-  PASS=$((PASS + 1))
-else
-  echo "FAIL [V21] postcss.config.mjs missing @tailwindcss/postcss"
-  FAIL=$((FAIL + 1))
-fi
-GLOBALS="$SEED/src/app/globals.css"
-# Both single- and double-quoted forms accepted (prettier normalizes per .prettierrc).
-if [ -f "$GLOBALS" ] && grep -qE "@import [\"']tailwindcss[\"']" "$GLOBALS"; then
-  echo "PASS [V21] src/app/globals.css contains @import (\"|')tailwindcss(\"|')"
-  PASS=$((PASS + 1))
-else
-  echo "FAIL [V21] src/app/globals.css missing @import (\"|')tailwindcss(\"|')"
-  FAIL=$((FAIL + 1))
-fi
-# lockfileVersion >= 3 (npm 7+ baseline). cd into seed dir so node's require
-# resolves the relative path correctly on Windows (absolute paths with
-# Windows drive letters and forward slashes confuse Node's CommonJS resolver).
-if [ -f "$SEED/package-lock.json" ] && command -v node >/dev/null 2>&1; then
-  LOCK_VER=$(cd "$SEED" && node -p "require('./package-lock.json').lockfileVersion" 2>/dev/null || echo "0")
-  check_gte "V21" "lockfileVersion >= 3" "$LOCK_VER" "3"
-else
-  echo "SKIP [V21] lockfileVersion check (node or package-lock.json missing)"
-fi
-# D-25: VERSION.md `Next.js` row count == 1 (deterministic awk parse)
-if [ -f "$ROOT/examples/archetype-next/VERSION.md" ]; then
-  NEXT_ROWS=$(grep -c '^| Next\.js' "$ROOT/examples/archetype-next/VERSION.md" || echo "0")
-  check "V21" "VERSION.md 'Next.js' row count == 1 (D-25)" "$NEXT_ROWS" "1"
-fi
+  if [ -f "$seed/package-lock.json" ] && command -v node >/dev/null 2>&1; then
+    local lock_ver
+    lock_ver=$(cd "$seed" && node -p "require('./package-lock.json').lockfileVersion" 2>/dev/null || echo "0")
+    check_gte "${label}" "lockfileVersion >= 3" "$lock_ver" "3"
+  fi
+  if [ -f "$ROOT/$version_file" ]; then
+    local next_rows
+    next_rows=$(grep -c '^| Next\.js' "$ROOT/$version_file" || echo "0")
+    check "${label}" "${version_file} 'Next.js' row count == 1" "$next_rows" "1"
+  fi
+}
+
+NEXT_REQUIRED="package.json package-lock.json jest.config.mjs postcss.config.mjs"
+DDD_PILOT_REQUIRED="package.json package-lock.json vitest.config.ts vitest.setup.unit.ts vitest.setup.browser.ts vitest.shims.d.ts postcss.config.mjs .dependency-cruiser.cjs"
+
+check_seed_completeness "next" "$NEXT_REQUIRED"
+echo ""
+check_seed_completeness "ddd-pilot" "$DDD_PILOT_REQUIRED"
 
 echo ""
 echo "=== V22: PLACEHOLDER_ALLOWLIST consistency ==="
@@ -404,7 +448,8 @@ echo "=== V23: ASCII-only execution surface (POSIX scanner) ==="
 V23_FILES=$(LC_ALL=C grep -nv '^[[:print:][:space:]]*$' \
   "$ROOT/scaffold.sh" "$ROOT/validate.sh" \
   "$ROOT/tools"/*.sh "$ROOT/test"/*.sh \
-  "$ROOT/examples/ci.yml" \
+  "$ROOT/examples/ci.archetype-next.yml" \
+  "$ROOT/examples/ci.archetype-ddd-pilot.yml" \
   "$ROOT/.github/workflows"/*.yml \
   2>/dev/null | wc -l | tr -d ' ')
 check "V23" "non-ASCII chars in execution surface (sh/yml/bat/cmd/ps1)" "$V23_FILES" "0"
@@ -449,8 +494,9 @@ echo "SKIP [V25] migrated to PR template checklist"
 
 echo ""
 echo "=== V26: jest.config.mjs uses next/jest (.js suffix mandatory) ==="
-# R16 fix: ESM-compatible import path.
-JEST_CFG="$SEED/jest.config.mjs"
+# R16 fix: ESM-compatible import path. Path is archetype-next-specific
+# (ddd-pilot uses Vitest; V21-bis-ddd-pilot covers vitest.config.ts).
+JEST_CFG="$ROOT/examples/archetype-next/seed/jest.config.mjs"
 if [ -f "$JEST_CFG" ] && grep -q "from 'next/jest.js'" "$JEST_CFG"; then
   echo "PASS [V26] jest.config.mjs imports from 'next/jest.js'"
   PASS=$((PASS + 1))
@@ -460,9 +506,9 @@ else
 fi
 
 echo ""
-echo "=== V27: ci.yml fetch-depth:0 + Architecture-before-Lint + npm run test ==="
+echo "=== V27: ci.archetype-next.yml fetch-depth:0 + Architecture-before-Lint + npm run test ==="
 # R13 fix: ci.yml parity with verification-loop.md ordering.
-CI="$ROOT/examples/ci.yml"
+CI="$ROOT/examples/ci.archetype-next.yml"
 if grep -q 'fetch-depth: 0' "$CI"; then
   echo "PASS [V27a] ci.yml fetch-depth: 0 present"
   PASS=$((PASS + 1))

@@ -79,7 +79,7 @@ Optional:
   --package-name <name>     npm package name. Defaults to --project-name.
                             npm scope supported: @org/name.
                             Pattern: ^(@[a-z0-9-]+/)?[a-z0-9][a-z0-9-]*\$
-  --archetype <name>        next (default, only implemented).
+  --archetype <name>        next (default) or ddd-pilot.
                             Reserved: node-cli, library (exit 1 with explicit message).
   --doc-modules <list>      comma-separated from {core,reports,briefings,extended}
                             default: core. 'core' is mandatory.
@@ -247,15 +247,16 @@ done
 echo "[Stage B] Select archetype: $ARCHETYPE"
 case "$ARCHETYPE" in
   next) ;;
+  ddd-pilot) ;;
   node-cli|library)
     echo "ERROR: --archetype $ARCHETYPE is reserved but not yet implemented." >&2
-    echo "       For TypeScript Phase 13c, only --archetype next is supported." >&2
+    echo "       Currently supported: --archetype next, --archetype ddd-pilot." >&2
     echo "       Track future archetype expansion in docs/architecture/decisions/ADR-002." >&2
     exit 1
     ;;
   *)
     echo "ERROR: unknown archetype: $ARCHETYPE" >&2
-    echo "       Valid: next (reserved future: node-cli, library)" >&2
+    echo "       Valid: next, ddd-pilot (reserved future: node-cli, library)" >&2
     exit 1
     ;;
 esac
@@ -266,36 +267,44 @@ esac
 #   D-16 + RC-M1 + C13C-R5: VERSION.md major cross-check (literal '|' FS).
 #   D-19 + RC-H1: --src-dir adopted, src/app/layout.tsx must exist.
 # ----------------------------------------------------------------
-echo "[Stage C] Import Next seed + overlay template assets"
+echo "[Stage C] Import seed + overlay template assets (archetype: $ARCHETYPE)"
 
-# Initializr-style seed import: copy contents of seed/ to repo root.
-run_eval "cp -a examples/archetype-next/seed/. ."
+SEED_DIR="examples/archetype-${ARCHETYPE}/seed"
+VERSION_FILE="examples/archetype-${ARCHETYPE}/VERSION.md"
 
-# VERSION.md major cross-check (rev.4 -- D-16 + RC-M1).
+# Initializr-style seed import: copy contents of archetype seed/ to repo root.
+run_eval "cp -a ${SEED_DIR}/. ."
+
+# VERSION.md major cross-check (rev.4 -- D-16 + RC-M1, archetype-parametrized).
 if [[ $DRY_RUN -eq 0 ]]; then
   # awk anchor `/^[|] Next\.js/` matches only the table row, not the in-prose
   # `Next.js` references in the parse-contract section (which would yield
   # multi-line output and break the major-vs-major equality check).
   SEED_NEXT_MAJOR=$(awk -F'|' '/^[|] Next\.js/{gsub(/[^0-9.]/,"",$3); print $3}' \
-    examples/archetype-next/VERSION.md | cut -d. -f1)
+    "$VERSION_FILE" | cut -d. -f1)
   PKG_NEXT_MAJOR=$(node -p "require('./package.json').dependencies.next.replace(/[^0-9.]/g,'').split('.')[0]")
   if [[ -z "$SEED_NEXT_MAJOR" || -z "$PKG_NEXT_MAJOR" ]]; then
     echo "ERROR: Stage C major-check empty (SEED='$SEED_NEXT_MAJOR' PKG='$PKG_NEXT_MAJOR'). Re-seed required." >&2
-    echo "       Maintainer-only: bash tools/refresh-next-seed.sh" >&2
     exit 1
   fi
   if [[ "$SEED_NEXT_MAJOR" != "$PKG_NEXT_MAJOR" ]]; then
-    echo "ERROR: VERSION.md Next major ($SEED_NEXT_MAJOR) != package.json ($PKG_NEXT_MAJOR). Re-seed required." >&2
-    echo "       Maintainer-only: bash tools/refresh-next-seed.sh" >&2
+    echo "ERROR: ${VERSION_FILE} Next major ($SEED_NEXT_MAJOR) != package.json ($PKG_NEXT_MAJOR). Re-seed required." >&2
     exit 1
   fi
 else
-  echo "  [dry-run] cross-check examples/archetype-next/VERSION.md Next major == package.json dependencies.next major"
+  echo "  [dry-run] cross-check ${VERSION_FILE} Next major == package.json dependencies.next major"
 fi
 
 # Template asset overlay (D-20: explicit cp commands, R12 fix).
 run mkdir -p .github/workflows
-run cp examples/ci.yml .github/workflows/ci.yml
+case "$ARCHETYPE" in
+  next)
+    run cp examples/ci.archetype-next.yml .github/workflows/ci.yml
+    ;;
+  ddd-pilot)
+    run cp examples/ci.archetype-ddd-pilot.yml .github/workflows/ci.yml
+    ;;
+esac
 # .claude/, README, CLAUDE.md already at template root -- no overlay needed.
 
 # ----------------------------------------------------------------

@@ -1,21 +1,37 @@
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTs from 'eslint-config-next/typescript';
 import { FlatCompat } from '@eslint/eslintrc';
-import fsdLint from 'eslint-plugin-fsd-lint';
 
-const compat = new FlatCompat({ baseDirectory: import.meta.dirname });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-export default [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
+
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  ...compat.plugins('fsd-lint'),
   {
-    plugins: { 'fsd-lint': fsdLint },
     rules: {
-      'fsd-lint/forbidden-imports': [
-        'error',
-        {
-          layers: ['app', 'widgets', 'features', 'entities', 'shared'],
-        },
-      ],
+      'fsd-lint/forbidden-imports': 'error',
       'fsd-lint/no-relative-imports': 'error',
       'fsd-lint/no-public-api-sidestep': 'error',
+      'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
     },
   },
-];
+  globalIgnores([
+    '.next/**',
+    'out/**',
+    'build/**',
+    'coverage/**',
+    'next-env.d.ts',
+    'examples/**',
+  ]),
+]);
+
+export default eslintConfig;

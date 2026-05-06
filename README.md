@@ -164,6 +164,21 @@ for the full option surface (patterns, exclude-patterns, update-types).
 
 ---
 
+## Skills
+
+Claude Code skills bundled with this template (`.claude/skills/`):
+
+| Skill | Source | Purpose |
+|---|---|---|
+| `tdd` | Pocock `mattpocock/skills@b843cb5e` (MIT) | TDD discipline, interface-design, mocking, refactoring guides |
+| `office-hours-ddd-discovery` | Adapted from `garrytan/gstack@19e699ab` (MIT) | 6 forcing questions for DDD bounded context discovery |
+| `claude-md-reviewer` | Local | CLAUDE.md quality review |
+
+See `.claude/skills/tdd/UPSTREAM.md` and `.claude/skills/office-hours-ddd-discovery/UPSTREAM.md`
+for upstream pins, license text, and sync procedures.
+
+---
+
 ## Related templates
 
 - [python-template](https://github.com/llm-setup-templates/python-template) — Python 3.13 + 3 archetypes (script / web / library)

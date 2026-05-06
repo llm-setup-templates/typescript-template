@@ -7,6 +7,11 @@ import {
   InvalidStatusTransitionError,
 } from '@/entities/order';
 
+// Domain layer no-mocking pattern: tests verify behavior through the public
+// API of the aggregate (entities/order/model/Order). Mocks are forbidden in
+// this layer. See Spring template's docs/patterns/ddd-tdd-cross-stack.md
+// "Domain layer no-mocking" section (cross-stack alignment).
+
 describe('Order', () => {
   const item = OrderItem.create(
     'p1',

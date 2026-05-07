@@ -445,12 +445,13 @@ fi
 echo ""
 echo "=== V23: ASCII-only execution surface (POSIX scanner) ==="
 # R11 fix: POSIX `[[:print:][:space:]]` (no GNU -P).
+# pr-meta-check.yml excluded: matches Korean PR template placeholders by design.
 V23_FILES=$(LC_ALL=C grep -nv '^[[:print:][:space:]]*$' \
   "$ROOT/scaffold.sh" "$ROOT/validate.sh" \
   "$ROOT/tools"/*.sh "$ROOT/test"/*.sh \
   "$ROOT/examples/ci.archetype-next.yml" \
   "$ROOT/examples/ci.archetype-ddd-pilot.yml" \
-  "$ROOT/.github/workflows"/*.yml \
+  $(find "$ROOT/.github/workflows" -maxdepth 1 -name '*.yml' ! -name 'pr-meta-check.yml' 2>/dev/null) \
   2>/dev/null | wc -l | tr -d ' ')
 check "V23" "non-ASCII chars in execution surface (sh/yml/bat/cmd/ps1)" "$V23_FILES" "0"
 

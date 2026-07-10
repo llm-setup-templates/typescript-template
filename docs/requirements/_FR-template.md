@@ -1,6 +1,6 @@
-# FR-XX: <one-line imperative title>
+# FR-{DOMAIN}-{NNN}: <one-line imperative title>
 
-> **Copy this file.** Rename to `FR-XX-<slug>.md`, remove the leading
+> **Copy this file.** Rename to `FR-{DOMAIN}-{NNN}-<slug>.md`, remove the leading
 > underscore, fill in every section. Add the row to `RTM.md` in the
 > same PR.
 
@@ -8,7 +8,7 @@
 
 ## Metadata
 
-- **FR ID**: FR-XX
+- **FR ID**: FR-{DOMAIN}-{NNN}
 - **Status**: Draft / Design / Implementing / Done / Deprecated
 - **GitHub Issue**: #NNN
 - **Related ADRs**: ADR-NNN (optional)
@@ -61,7 +61,7 @@ ambiguity. An LLM implementing from this spec should produce one
 compilable function.
 
 ```
-BEGIN FR-XX
+BEGIN FR-{DOMAIN}-{NNN}
   VALIDATE input via ExampleSchema.parse (throws on failure)
   FETCH user BY exampleId
   IF user IS NULL THEN
@@ -72,7 +72,7 @@ BEGIN FR-XX
   END IF
   INSERT into analytics_events (event_type, user_id, ts)
   RETURN 200 with ExampleDto
-END FR-XX
+END FR-{DOMAIN}-{NNN}
 ```
 
 ## Decision table

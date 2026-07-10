@@ -550,6 +550,10 @@ else
 fi
 
 # === V_drift: cross-drift schema guard (14a-bis Phase, rev.6 -- R3+CX3+R4-A fixes) ===
+echo "=== V_rtm: RTM integrity (body: scripts/rtm-lint.sh) ==="
+if bash "$ROOT/scripts/rtm-lint.sh" "$ROOT"; then echo "PASS [V_rtm] RTM integrity"; PASS=$((PASS + 1))
+else echo "FAIL [V_rtm] RTM integrity violations found (see VIOLATION lines above)"; FAIL=$((FAIL + 1)); fi
+echo ""
 echo "=== V_drift: 5-keyword + line count + negation + SHA256 ==="
 v_drift_failed=0
 vdrift_root="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"

@@ -45,7 +45,14 @@ Which best describes what you're about to write?
 
 ## Naming rules
 
-- **FR / NFR**: `FR-01`, `FR-02`, `NFR-01` — functional / non-functional requirements
+- **FR / NFR / TC**: `FR-{DOMAIN}-{NNN}`, `NFR-{CATEGORY}-{NNN}`,
+  `TC-{DOMAIN}-{NNN}` — three-digit zero-padded (`FR-ORDER-001`). Domain
+  prefixes are uppercase, defined in the table at the top of
+  `docs/requirements/RTM.md`, and each domain numbers independently.
+  Never reuse a retired number — set the RTM row's Status to
+  `Deprecated` instead of deleting it
+- **Screen**: `{DEVICE}-{AREA}-{SCREEN}-{NN}` — e.g. `M-FE-HM-01`. The
+  abbreviations are yours to define; only the shape is checked
 - **ADR / RFC**: three-digit zero-padded — `ADR-001`, `ADR-042`, `RFC-007`
 - **Reports**: prefix + date + slug — `spike-test-2026-04-11-fc-api-korean.md`
 - **Briefings**: date-prefixed folder — `2026-04-14-professor-interview/`

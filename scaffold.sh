@@ -305,7 +305,7 @@ case "$ARCHETYPE" in
     run cp examples/ci.archetype-ddd-pilot.yml .github/workflows/ci.yml
     ;;
 esac
-# .claude/, README, CLAUDE.md already at template root -- no overlay needed.
+# .claude/, .agents/, README, AGENTS.md, CLAUDE.md already at template root -- no overlay needed.
 
 # ----------------------------------------------------------------
 # Stage D -- substitute placeholders
@@ -316,9 +316,9 @@ esac
 # ----------------------------------------------------------------
 echo "[Stage D] Substitute placeholders"
 
-# CLAUDE.md
-substitute '{{PROJECT_NAME}}' "$PROJECT_NAME" CLAUDE.md
-substitute '{{PROJECT_ONE_LINER}}' "_(fill in your project description)_" CLAUDE.md
+# AGENTS.md
+substitute '{{PROJECT_NAME}}' "$PROJECT_NAME" AGENTS.md
+substitute '{{PROJECT_ONE_LINER}}' "_(fill in your project description)_" AGENTS.md
 
 # Stage C post-condition (RC-H1 fix): assert src/app/layout.tsx exists
 # before substituting it. seed must be created with --src-dir.
@@ -430,7 +430,7 @@ Next steps:
 TODO before production:
   - .github/CODEOWNERS -- replace @YOUR_ORG/* placeholders with real team handles
   - .env.example -- fill in NEXT_PUBLIC_* and other project-specific env vars
-  - README.md / CLAUDE.md -- replace {{PROJECT_ONE_LINER}} with your project description
+  - README.md / AGENTS.md -- replace {{PROJECT_ONE_LINER}} with your project description
 
 EOF
 

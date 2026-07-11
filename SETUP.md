@@ -26,13 +26,13 @@ flowchart LR
 | `pnpm` package manager | runtime | required | high |
 | `BASE_PACKAGE` / project name | scaffold param | required | medium |
 | `.github/workflows/validate.yml` | CI workflow | committed | medium |
-| `.claude/rules/plan-review-deep.md` | governance | byte-identical 3 templates | high |
+| `.agents/rules/plan-review-deep.md` | governance | byte-identical 3 templates | high |
 
 ### Adding a new archetype
 Activate one of the reserved archetypes (`node-cli`, `library`) or add a new directory under `examples/` and update `scaffold.sh` archetype dispatch + the archetypes subgraph above. Phase 14b is the canonical Phase for archetype expansion.
 
 ### Adding a new verify step
-Add a new `=== V<N> <name> ===` block to `validate.sh` AFTER V0a/V0e/V_seed and BEFORE V1+. Update F1 echo headers if the step exposes a new failure surface. See `.claude/rules/plan-review-deep.md` Section 2.
+Add a new `=== V<N> <name> ===` block to `validate.sh` AFTER V0a/V0e/V_seed and BEFORE V1+. Update F1 echo headers if the step exposes a new failure surface. See `.agents/rules/plan-review-deep.md` Section 2.
 
 ### Adding a new env dependency
 Add a row to the ENV table above and rate its blast radius (low/medium/high). If required for `validate.sh` to run, add a presence guard at the top of `validate.sh`.
@@ -100,7 +100,7 @@ Optional:
 | A | Remove template-only files (`validate.sh`, `.github/workflows/validate.yml`, `.github/workflows/scaffold-e2e.yml`, `test/`, `RATIONALE.md`, `CODERABBIT-PROMPT-GUIDE.md`, `tools/`, ADR-002, RFC-001). Keeps `.claude/` (agent rules) + `examples/` (used by Stage C). |
 | B | Select archetype. Currently `next` only; `node-cli` / `library` exit with "reserved but not yet implemented". |
 | C | Import Next seed (`examples/archetype-next/seed/`) + overlay template assets. Stage C asserts `examples/archetype-next/VERSION.md` Next major matches seed `package.json` `dependencies.next` major. `examples/ci.yml` lands at `.github/workflows/ci.yml`. |
-| D | Substitute placeholders: `{{PROJECT_NAME}}` (CLAUDE.md, src/app/layout.tsx metadata, package.json name), `{{PROJECT_ONE_LINER}}` (CLAUDE.md). Bulk find/sed scope is `**/*.{md,yml,yaml}` excluding `examples/`, `node_modules/`, `.git/`. |
+| D | Substitute placeholders: `{{PROJECT_NAME}}` (AGENTS.md, src/app/layout.tsx metadata, package.json name), `{{PROJECT_ONE_LINER}}` (AGENTS.md). Bulk find/sed scope is `**/*.{md,yml,yaml}` excluding `examples/`, `node_modules/`, `.git/`. |
 | E | Trim unselected doc modules (`docs/reports/`, `docs/briefings/`, `docs/architecture/{containers,DFD}.md` + `docs/data/`). |
 | F | Remove `examples/`, defensive `tools/` removal (already gone from Stage A), and run `npx --no-install next telemetry disable` best-effort. |
 | G | `rm -rf .git && git init -b main` (fresh history — template history not inherited). |
@@ -231,8 +231,8 @@ All `{{...}}` placeholders below are filled by `scaffold.sh` Stage D:
 
 | Placeholder | Scope | Filled by | Example |
 |---|---|---|---|
-| `{{PROJECT_NAME}}` | CLAUDE.md, src/app/layout.tsx (metadata title + description), package.json `name` | scaffold.sh Stage D | `my-app` |
-| `{{PROJECT_ONE_LINER}}` | CLAUDE.md | scaffold.sh Stage D (default value) | `_(fill in your project description)_` |
+| `{{PROJECT_NAME}}` | AGENTS.md, src/app/layout.tsx (metadata title + description), package.json `name` | scaffold.sh Stage D | `my-app` |
+| `{{PROJECT_ONE_LINER}}` | AGENTS.md | scaffold.sh Stage D (default value) | `_(fill in your project description)_` |
 
 The placeholder grammar is locked at `\{\{[A-Z_]+\}\}` (uppercase + underscore
 only). Soft variants like `{{project-name}}` or `<<NAME>>` are forbidden by

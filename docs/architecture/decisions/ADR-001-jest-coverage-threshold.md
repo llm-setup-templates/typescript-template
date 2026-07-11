@@ -101,7 +101,7 @@ What becomes **harder**:
   ```ts
   global: { branches: 70, functions: 80, lines: 80, statements: 80 },
   ```
-- Lower-bound rule: do not lower any metric below the values in this ADR without recording an ADR that supersedes ADR-001 (Append-only rule per `.claude/rules/documentation.md`)
+- Lower-bound rule: do not lower any metric below the values in this ADR without recording an ADR that supersedes ADR-001 (Append-only rule per `.agents/rules/documentation.md`)
 
 ## References
 

@@ -55,7 +55,7 @@ JS/TS 프로젝트 세팅은 선택지 홍수입니다: App Router vs Pages Rout
 ## 누가 쓰면 안 되는가
 
 - Pages Router를 원하는 경우 → fork 후 Phase 1 스캐폴딩 재작성
-- FSD를 원하지 않는 경우 → fork 후 `.claude/rules/architecture.md` 삭제, fsd-lint 플러그인 제거
+- FSD를 원하지 않는 경우 → fork 후 `.agents/rules/architecture.md` 삭제, fsd-lint 플러그인 제거
 - SSG 위주 정적 사이트가 필요한 경우 → Astro 또는 11ty가 더 적합
 - TypeScript를 사용하지 않는 경우 → 이 템플릿은 TS 전용
 
@@ -121,11 +121,11 @@ npm run build          # next build
 ## 포함된 내용
 
 - 셋업 흐름: [SETUP.md](./SETUP.md) — 14개 섹션, Phase 0 → Phase 8
-- AI 에이전트 규칙: [CLAUDE.md](./CLAUDE.md)
-- 아키텍처 (FSD 심화): [.claude/rules/architecture.md](./.claude/rules/architecture.md)
-- 검증 루프: [.claude/rules/verification-loop.md](./.claude/rules/verification-loop.md)
-- 테스트 수정: [.claude/rules/test-modification.md](./.claude/rules/test-modification.md)
-- Git 워크플로우: [.claude/rules/git-workflow.md](./.claude/rules/git-workflow.md)
+- AI 에이전트 규칙: [AGENTS.md](./AGENTS.md) (Claude Code는 CLAUDE.md import 껍데기로 로드)
+- 아키텍처 (FSD 심화): [.agents/rules/architecture.md](./.agents/rules/architecture.md)
+- 검증 루프: [.agents/rules/verification-loop.md](./.agents/rules/verification-loop.md)
+- 테스트 수정: [.agents/rules/test-modification.md](./.agents/rules/test-modification.md)
+- Git 워크플로우: [.agents/rules/git-workflow.md](./.agents/rules/git-workflow.md)
 
 ---
 

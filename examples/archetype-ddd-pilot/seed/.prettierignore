@@ -11,11 +11,13 @@ package-lock.json
 # Markdown). Prettier's defaults reformat them aggressively, so they are
 # explicitly out-of-scope for `prettier --check .`. Edits to these files are
 # guarded by markdownlint / yamllint where appropriate, not Prettier.
+.agents/
 .claude/
 .github/
 docs/
 README.md
 README.ko.md
+AGENTS.md
 CLAUDE.md
 SETUP.md
 RATIONALE.md

@@ -44,7 +44,7 @@ Touch points (estimated):
   `test:coverage`, `test:watch`
 - Existing `__tests__/` snapshot format (`.snap` files) — Vitest uses
   the same Jest-compatible snapshot format, so this is mechanical.
-- `.claude/rules/test-modification.md` — update commands and snapshot
+- `.agents/rules/test-modification.md` — update commands and snapshot
   guidance (`vitest -u` instead of `jest --updateSnapshot`).
 - `validate.sh` V26 grep target — change from `next/jest` to
   `defineConfig.*vitest`.

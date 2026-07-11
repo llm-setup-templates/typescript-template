@@ -183,11 +183,16 @@ grep -q "$PROJECT_NAME" src/app/layout.tsx \
 ! grep -q '{{PROJECT_NAME}}' src/app/layout.tsx \
   || { echo "FAIL: layout.tsx still has {{PROJECT_NAME}} placeholder"; exit 1; }
 
-# CLAUDE.md substituted
-! grep -q '{{PROJECT_NAME}}' CLAUDE.md \
-  || { echo "FAIL: CLAUDE.md PROJECT_NAME placeholder leaked"; exit 1; }
-! grep -q '{{PROJECT_ONE_LINER}}' CLAUDE.md \
-  || { echo "FAIL: CLAUDE.md PROJECT_ONE_LINER placeholder leaked"; exit 1; }
+# AGENTS.md substituted (positive assertion first -- a missing file must fail,
+# not silently pass a negative-only grep)
+test -f AGENTS.md \
+  || { echo "FAIL: AGENTS.md missing after scaffold"; exit 1; }
+grep -q "$PROJECT_NAME" AGENTS.md \
+  || { echo "FAIL: AGENTS.md PROJECT_NAME not substituted"; exit 1; }
+! grep -q '{{PROJECT_NAME}}' AGENTS.md \
+  || { echo "FAIL: AGENTS.md PROJECT_NAME placeholder leaked"; exit 1; }
+! grep -q '{{PROJECT_ONE_LINER}}' AGENTS.md \
+  || { echo "FAIL: AGENTS.md PROJECT_ONE_LINER placeholder leaked"; exit 1; }
 
 # Template-only files removed by Stage A/F
 test ! -f validate.sh                       || { echo "FAIL: validate.sh leaked"; exit 1; }
@@ -214,7 +219,7 @@ case "$(uname -s)" in
 esac
 
 # .claude/ preserved (derived repo agent rules)
-test -d .claude/rules || { echo "FAIL: .claude/rules missing"; exit 1; }
+test -d .agents/rules || { echo "FAIL: .agents/rules missing"; exit 1; }
 
 # 4. Placeholder leak (CRITICAL -- code/config files)
 LEAKS=$(grep -rE '\{\{[A-Z_]+\}\}' . \

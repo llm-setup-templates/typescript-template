@@ -16,6 +16,7 @@ package-lock.json
 docs/
 README.md
 README.ko.md
+AGENTS.md
 CLAUDE.md
 SETUP.md
 RATIONALE.md

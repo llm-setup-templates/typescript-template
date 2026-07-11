@@ -18,7 +18,7 @@ FAIL=0
 # Add new entries when introducing new placeholders.
 # ----------------------------------------------------------------
 PLACEHOLDER_ALLOWLIST=(
-  "CLAUDE.md"
+  "AGENTS.md"
   "examples/archetype-next/seed/package.json"
   "examples/archetype-next/seed/package-lock.json"
   "examples/archetype-next/seed/src/app/layout.tsx"
@@ -152,10 +152,10 @@ echo ""
 echo "=== V5: 'npm run verify' command consistency ==="
 V5_VL=$(grep -c "npm run verify" "$ROOT/.claude/rules/verification-loop.md" || echo "0")
 V5_SETUP=$(grep -c "npm run verify" "$ROOT/SETUP.md" || echo "0")
-V5_CLAUDE=$(grep -c "npm run verify" "$ROOT/CLAUDE.md" || echo "0")
+V5_CLAUDE=$(grep -c "npm run verify" "$ROOT/AGENTS.md" || echo "0")
 check_gte "V5a" "npm run verify in verification-loop.md" "$V5_VL" "1"
 check_gte "V5b" "npm run verify in SETUP.md" "$V5_SETUP" "1"
-check_gte "V5c" "npm run verify in CLAUDE.md" "$V5_CLAUDE" "1"
+check_gte "V5c" "npm run verify in AGENTS.md" "$V5_CLAUDE" "1"
 
 echo ""
 echo "=== V6: code-style.md OVERRIDE placeholders ==="
@@ -435,7 +435,7 @@ while IFS= read -r match; do
   fi
 done < <(grep -rnE '\{\{[A-Z_]+\}\}' \
   "$ROOT/examples/" "$ROOT/.github/" "$ROOT/docs/" "$ROOT/.claude/" \
-  "$ROOT/CLAUDE.md" "$ROOT/README.md" "$ROOT/README.ko.md" 2>/dev/null \
+  "$ROOT/AGENTS.md" "$ROOT/README.md" "$ROOT/README.ko.md" 2>/dev/null \
   | grep -v 'archetype-next/seed/node_modules')
 if [ "$V22_LEAK" -eq 0 ]; then
   echo "PASS [V22] PLACEHOLDER_ALLOWLIST consistent (no leaks)"

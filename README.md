@@ -57,7 +57,7 @@ and ships a SETUP.md the LLM agent executes top-to-bottom.
 ## Who should NOT use this
 
 - You want Pages Router (not App Router) → fork, rewrite Phase 1 scaffolding
-- You dislike FSD → fork, delete `.claude/rules/architecture.md`, remove fsd-lint plugin
+- You dislike FSD → fork, delete `.agents/rules/architecture.md`, remove fsd-lint plugin
 - You need an SSG-heavy static site → Astro or 11ty is a better fit
 - You are not using TypeScript → this template is TS-only
 
@@ -124,11 +124,11 @@ This loop matches the CI workflow exactly — no divergence by design.
 ## What's inside
 
 - Setup flow: [SETUP.md](./SETUP.md) — 14 sections, Phase 0 → Phase 8
-- AI agent rules: [CLAUDE.md](./CLAUDE.md)
-- Architecture (FSD deep dive): [.claude/rules/architecture.md](./.claude/rules/architecture.md)
-- Verification loop: [.claude/rules/verification-loop.md](./.claude/rules/verification-loop.md)
-- Test modification: [.claude/rules/test-modification.md](./.claude/rules/test-modification.md)
-- Git workflow: [.claude/rules/git-workflow.md](./.claude/rules/git-workflow.md)
+- AI agent rules: [AGENTS.md](./AGENTS.md) (Claude Code loads it via the CLAUDE.md import shell)
+- Architecture (FSD deep dive): [.agents/rules/architecture.md](./.agents/rules/architecture.md)
+- Verification loop: [.agents/rules/verification-loop.md](./.agents/rules/verification-loop.md)
+- Test modification: [.agents/rules/test-modification.md](./.agents/rules/test-modification.md)
+- Git workflow: [.agents/rules/git-workflow.md](./.agents/rules/git-workflow.md)
 
 ---
 
@@ -172,7 +172,7 @@ Claude Code skills bundled with this template (`.claude/skills/`):
 |---|---|---|
 | `tdd` | Pocock `mattpocock/skills@b843cb5e` (MIT) | TDD discipline, interface-design, mocking, refactoring guides |
 | `office-hours-ddd-discovery` | Adapted from `garrytan/gstack@19e699ab` (MIT) | 6 forcing questions for DDD bounded context discovery |
-| `claude-md-reviewer` | Local | CLAUDE.md quality review |
+| `claude-md-reviewer` | Local | AGENTS.md rules-body quality review |
 
 See `.claude/skills/tdd/UPSTREAM.md` and `.claude/skills/office-hours-ddd-discovery/UPSTREAM.md`
 for upstream pins, license text, and sync procedures.

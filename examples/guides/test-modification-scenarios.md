@@ -1,6 +1,6 @@
 # Test Modification Scenarios — TypeScript / Next.js
 
-Three concrete scenarios demonstrating `.claude/rules/test-modification.md` in action.
+Three concrete scenarios demonstrating `.agents/rules/test-modification.md` in action.
 Each scenario starts from a working Next.js project with passing tests.
 
 ---

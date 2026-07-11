@@ -1,6 +1,6 @@
 # RATIONALE — TypeScript Template Design Notes
 
-> Out-of-band design rationale that doesn't fit in CLAUDE.md (LLM agent rules)
+> Out-of-band design rationale that doesn't fit in AGENTS.md (LLM agent rules)
 > or SETUP.md (user-facing how-to). Captures the "why" behind non-obvious
 > decisions so future maintainers don't relitigate them.
 
@@ -48,7 +48,7 @@ expect "scaffold.sh finishes ⇒ hooks active":
    without lint-staged or commitlint. This is a feature, not a bug —
    users in CI-only flows or those who skip `npm install` retain control.
 
-Phase 13c rules wording (`.claude/rules/git-workflow.md`) was rewritten to
+Phase 13c rules wording (`.agents/rules/git-workflow.md`) was rewritten to
 say "configured at scaffold, activated on `npm install`" so derived-repo
 agents don't claim the hooks are live before the first install.
 

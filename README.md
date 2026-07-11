@@ -123,12 +123,13 @@ This loop matches the CI workflow exactly — no divergence by design.
 
 ## What's inside
 
-- Setup flow: [SETUP.md](./SETUP.md) — 14 sections, Phase 0 → Phase 8
+- Setup flow: [SETUP.md](./SETUP.md) — Phase 0 plus numbered sections 1–8
 - AI agent rules: [AGENTS.md](./AGENTS.md) (Claude Code loads it via the CLAUDE.md import shell)
 - Architecture (FSD deep dive): [.agents/rules/architecture.md](./.agents/rules/architecture.md)
 - Verification loop: [.agents/rules/verification-loop.md](./.agents/rules/verification-loop.md)
 - Test modification: [.agents/rules/test-modification.md](./.agents/rules/test-modification.md)
 - Git workflow: [.agents/rules/git-workflow.md](./.agents/rules/git-workflow.md)
+- Requirements traceability: [docs/requirements/RTM.md](./docs/requirements/RTM.md) — 11-column RTM (with Screen), linted by `scripts/rtm-lint.sh` in `validate.sh` and, in generated projects, by `.github/workflows/rtm.yml`
 
 ---
 

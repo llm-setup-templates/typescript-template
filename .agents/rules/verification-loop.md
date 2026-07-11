@@ -9,7 +9,7 @@ npm run format:check    # format check  — Prettier
 npm run typecheck       # type check    — tsc --noEmit
 npm run depcruise       # architecture  — Dependency Cruiser (infra isolation + cross-feature)
 npm run lint            # lint          — ESLint 9
-npm run test            # tests         — Jest + ts-jest
+npm run test            # tests         — Jest (next) / Vitest (ddd-pilot)
 npm run build           # build         — next build
 ```
 

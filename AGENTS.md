@@ -1,24 +1,24 @@
 # {{PROJECT_NAME}}
 
-> Generated from llm-setup-prompts/typescript-template.
+> Generated from llm-setup-templates/typescript-template.
 > Canonical rules body for all agents (Claude Code loads this via CLAUDE.md imports; Codex CLI loads it directly).
 > Replace `{{PROJECT_NAME}}` with the actual project name before use.
 
 ## 1. Project Overview
 
-TypeScript / Next.js 15 (App Router) project scaffolded via
-llm-setup-prompts/typescript-template. Architecture follows Feature-Sliced Design (FSD).
+TypeScript / Next.js 16 (App Router) project scaffolded via
+llm-setup-templates/typescript-template. Architecture follows Feature-Sliced Design (FSD).
 
 ## 2. Tech Stack
 
 - Language: TypeScript 5.x (strict mode)
 - Runtime: Node.js 20 LTS
-- Framework: Next.js 15 (App Router)
+- Framework: Next.js 16 (App Router)
 - Package Manager: npm
 - Formatter: Prettier (`.prettierrc`)
 - Linter: ESLint 9 flat config (`eslint.config.mjs`) + eslint-plugin-fsd-lint
 - Type Checker: tsc (`npm run typecheck`)
-- Test Runner: Jest 29 + ts-jest + jest-environment-jsdom
+- Test Runner: archetype-dependent — `next` uses Jest 29 (jest-environment-jsdom); `ddd-pilot` uses Vitest 4 (browser mode). Check your package.json `test` script.
 - CI: GitHub Actions (`Node 20`, `.github/workflows/ci.yml`)
 - PR Review: CodeRabbit (`.coderabbit.yaml`)
 
@@ -36,7 +36,7 @@ llm-setup-prompts/typescript-template. Architecture follows Feature-Sliced Desig
 
 ## 4. Architecture Summary
 
-This project uses Feature-Sliced Design (FSD) with 5 layers: `shared → entities → features → widgets → app`. **Route Handlers return data directly via `NextResponse.json()`** (no wrapper). Error handling: `AppError` class + `errorResponse()` helper, or optional `apiHandler` HOF for boilerplate reduction. Request validation uses **Zod schemas** (`.parse()`/`.safeParse()` — Next.js official recommendation). Infrastructure isolation (DB drivers, ORMs) enforced by Dependency Cruiser (see `examples/.dependency-cruiser.cjs`). See `.agents/rules/architecture.md` for full rules.
+This project uses Feature-Sliced Design (FSD) with 5 layers: `shared → entities → features → widgets → app`. **Route Handlers return data directly via `NextResponse.json()`** (no wrapper). Error handling: `AppError` class + `errorResponse()` helper, or optional `apiHandler` HOF for boilerplate reduction. Request validation uses **Zod schemas** (`.parse()`/`.safeParse()` — Next.js official recommendation). Infrastructure isolation (DB drivers, ORMs) enforced by Dependency Cruiser (see `.dependency-cruiser.cjs` at the project root). See `.agents/rules/architecture.md` for full rules.
 
 ## 5. Requirements traceability (RTM)
 

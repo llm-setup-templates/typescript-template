@@ -120,12 +120,13 @@ npm run build          # next build
 
 ## 포함된 내용
 
-- 셋업 흐름: [SETUP.md](./SETUP.md) — 14개 섹션, Phase 0 → Phase 8
+- 셋업 흐름: [SETUP.md](./SETUP.md) — Phase 0과 번호 섹션 1–8
 - AI 에이전트 규칙: [AGENTS.md](./AGENTS.md) (Claude Code는 CLAUDE.md import 껍데기로 로드)
 - 아키텍처 (FSD 심화): [.agents/rules/architecture.md](./.agents/rules/architecture.md)
 - 검증 루프: [.agents/rules/verification-loop.md](./.agents/rules/verification-loop.md)
 - 테스트 수정: [.agents/rules/test-modification.md](./.agents/rules/test-modification.md)
 - Git 워크플로우: [.agents/rules/git-workflow.md](./.agents/rules/git-workflow.md)
+- 요구사항 추적: [docs/requirements/RTM.md](./docs/requirements/RTM.md) — 11열 RTM(Screen 포함), `validate.sh`의 `scripts/rtm-lint.sh`와 생성 프로젝트의 `.github/workflows/rtm.yml`이 검사
 
 ---
 

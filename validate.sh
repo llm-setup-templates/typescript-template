@@ -87,7 +87,7 @@ check_absent() {
   fi
 }
 
-# F1 4 subfacet acceptance -- see .claude/rules/plan-review-deep.md Section 1
+# F1 4 subfacet acceptance -- see .agents/rules/plan-review-deep.md Section 1
 # Each subfacet's verification is the corresponding V/scaffold-e2e block
 # below. CI source-greps `echo "=== F1.x ...` to count 4 headers (F1.a-F1.d).
 echo "=== F1.a Reproducible Failure ==="
@@ -150,7 +150,7 @@ echo "SKIP [V4] Git Safety Gate not present in Phase 13c SETUP.md"
 
 echo ""
 echo "=== V5: 'npm run verify' command consistency ==="
-V5_VL=$(grep -c "npm run verify" "$ROOT/.claude/rules/verification-loop.md" || echo "0")
+V5_VL=$(grep -c "npm run verify" "$ROOT/.agents/rules/verification-loop.md" || echo "0")
 V5_SETUP=$(grep -c "npm run verify" "$ROOT/SETUP.md" || echo "0")
 V5_CLAUDE=$(grep -c "npm run verify" "$ROOT/AGENTS.md" || echo "0")
 check_gte "V5a" "npm run verify in verification-loop.md" "$V5_VL" "1"
@@ -159,13 +159,13 @@ check_gte "V5c" "npm run verify in AGENTS.md" "$V5_CLAUDE" "1"
 
 echo ""
 echo "=== V6: code-style.md OVERRIDE placeholders ==="
-V6_COUNT=$(grep -oE '\{\{OVERRIDE_[A-Z_]+\}\}' "$ROOT/.claude/rules/code-style.md" | wc -l | tr -d ' ')
+V6_COUNT=$(grep -oE '\{\{OVERRIDE_[A-Z_]+\}\}' "$ROOT/.agents/rules/code-style.md" | wc -l | tr -d ' ')
 check "V6" "code-style.md OVERRIDE placeholders" "$V6_COUNT" "0"
 
 echo ""
 echo "=== V7: architecture.md FSD 5-layer + no-public-api-sidestep ==="
-V7_FSD=$(grep -c "shared\|entities\|features\|widgets" "$ROOT/.claude/rules/architecture.md" || echo "0")
-V7_NPS=$(grep -c "no-public-api-sidestep" "$ROOT/.claude/rules/architecture.md" || echo "0")
+V7_FSD=$(grep -c "shared\|entities\|features\|widgets" "$ROOT/.agents/rules/architecture.md" || echo "0")
+V7_NPS=$(grep -c "no-public-api-sidestep" "$ROOT/.agents/rules/architecture.md" || echo "0")
 check_gte "V7a" "FSD layers mentioned in architecture.md" "$V7_FSD" "1"
 check_gte "V7b" "no-public-api-sidestep in architecture.md" "$V7_NPS" "1"
 
@@ -256,7 +256,7 @@ for f in \
   docs/architecture/decisions/README.md \
   docs/architecture/decisions/_ADR-template.md \
   docs/architecture/decisions/_RFC-template.md \
-  .claude/rules/documentation.md; do
+  .agents/rules/documentation.md; do
   if [ -f "$ROOT/$f" ]; then
     echo "PASS [V11] $f"
     PASS=$((PASS + 1))
@@ -434,7 +434,7 @@ while IFS= read -r match; do
     V22_LEAK=$((V22_LEAK + 1))
   fi
 done < <(grep -rnE '\{\{[A-Z_]+\}\}' \
-  "$ROOT/examples/" "$ROOT/.github/" "$ROOT/docs/" "$ROOT/.claude/" \
+  "$ROOT/examples/" "$ROOT/.github/" "$ROOT/docs/" "$ROOT/.agents/" "$ROOT/.claude/" \
   "$ROOT/AGENTS.md" "$ROOT/README.md" "$ROOT/README.ko.md" 2>/dev/null \
   | grep -v 'archetype-next/seed/node_modules')
 if [ "$V22_LEAK" -eq 0 ]; then
@@ -558,7 +558,7 @@ echo "=== V_drift: 5-keyword + line count + negation + SHA256 ==="
 v_drift_failed=0
 vdrift_root="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 # Step 1+1b: extract Section 5 body + narrow to numbered 5-line checklist (CX2-2: || true)
-section5_body=$(awk '/^## 5\. Phase E entry rubric$/ { f=1; next } f && /^## 6\./ { exit } f { print }' "$vdrift_root/.claude/rules/plan-review-deep.md" 2>/dev/null | tr -d '\r' || true)
+section5_body=$(awk '/^## 5\. Phase E entry rubric$/ { f=1; next } f && /^## 6\./ { exit } f { print }' "$vdrift_root/.agents/rules/plan-review-deep.md" 2>/dev/null | tr -d '\r' || true)
 [ -n "$section5_body" ] || { echo "FAIL: V_drift Section 5 extraction failed (header missing)"; v_drift_failed=1; }
 section5_checklist=$(printf '%s\n' "$section5_body" | grep -E '^[1-5]\. (Flexibility|Universality|Convention precedence|Contract test specifications|Opt-in examples)' || true)
 section5_checklist_count=$(printf '%s\n' "$section5_checklist" | grep -c '^[1-5]\. ' || true)

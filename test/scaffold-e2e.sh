@@ -219,7 +219,7 @@ case "$(uname -s)" in
 esac
 
 # .claude/ preserved (derived repo agent rules)
-test -d .claude/rules || { echo "FAIL: .claude/rules missing"; exit 1; }
+test -d .agents/rules || { echo "FAIL: .agents/rules missing"; exit 1; }
 
 # 4. Placeholder leak (CRITICAL -- code/config files)
 LEAKS=$(grep -rE '\{\{[A-Z_]+\}\}' . \

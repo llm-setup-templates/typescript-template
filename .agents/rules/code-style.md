@@ -47,4 +47,4 @@
 - `import type` MUST be used for type-only imports
 
 ## Module Export Rules
-See `.claude/rules/architecture.md` for the full Barrel File convention.
+See `.agents/rules/architecture.md` for the full Barrel File convention.

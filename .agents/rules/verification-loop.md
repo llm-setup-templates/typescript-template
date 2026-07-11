@@ -21,7 +21,7 @@ npm run verify
 
 (`npm run verify` = format:check && typecheck && depcruise && lint && test && build — defined in package.json)
 
-If the **test** step fails, consult `.claude/rules/test-modification.md` to determine
+If the **test** step fails, consult `.agents/rules/test-modification.md` to determine
 which tests need updating based on the code change type, then re-run the loop.
 
 ## Agent Self-Verification Rules

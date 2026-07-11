@@ -2,12 +2,12 @@
 
 [English README](./README.md)
 
-> Next.js 15 (App Router) + Feature-Sliced Design을 조합한 독단적(opinionated) 템플릿.
+> Next.js 16 (App Router) + Feature-Sliced Design을 조합한 독단적(opinionated) 템플릿.
 > Claude Code / Cursor 같은 LLM 코딩 에이전트가 빈 디렉토리에서 GitHub Actions CI green까지
 > **중간 인간 개입 없이** 자동 세팅하도록 설계됐습니다.
 
-**실증 검증 완료**: SETUP.md 하나로 Claude Code → CI green 9분 달성
-([증거 실행 로그](https://github.com/KWONSEOK02/llm-setup-e2e17-typescript/actions/runs/24565977208))
+**실증 검증 완료**: SETUP.md 하나로 Claude Code → CI green (검증 당시 실측 약 9분,
+일회성 스캐폴드로 확인 후 임시 검증 레포는 삭제함)
 
 ---
 
@@ -21,13 +21,13 @@ JS/TS 프로젝트 세팅은 선택지 홍수입니다: App Router vs Pages Rout
 
 | 계층 | 선택 | 이유 (기각된 대안) |
 |---|---|---|
-| 프레임워크 | Next.js 15 App Router | Pages Router는 레거시 경로; App Router + Server Components가 현재 표준 |
+| 프레임워크 | Next.js 16 App Router | Pages Router는 레거시 경로; App Router + Server Components가 현재 표준 |
 | 아키텍처 | Feature-Sliced Design (5계층) | Clean Architecture는 SPA에 너무 추상적; Atomic Design은 UI와 상태를 혼용 |
 | TypeScript | strict 모드 + `@/*` alias | loose 모드는 실제 버그를 숨김; 상대 경로 임포트는 리팩토링 시 부서짐 |
 | 포매터 | Prettier (모든 공백 소유) | "어떤 ESLint 규칙이 포맷을?" 논쟁 종식 |
 | 린터 | ESLint 9 flat config + `eslint-plugin-fsd-lint` | 레거시 `.eslintrc.*`는 deprecated; fsd-lint가 계층 경계를 자동 강제 |
 | 경계 검사 | Dependency Cruiser | "feature가 Prisma를 임포트 금지" 같은 규칙은 ESLint만으로 표현 불가 |
-| 테스트 | Jest 29 + ts-jest + jsdom | Vitest는 별도 ref variant 존재; 더 넓은 생태계를 위해 Jest 선택 |
+| 테스트 | Jest 29 + jsdom (`next`) / Vitest 4 browser mode (`ddd-pilot`) | `next` 아키타입은 넓은 생태계를 위해 Jest; `ddd-pilot`은 Vitest browser mode |
 | Git 훅 | Husky 9 (pre-commit + commit-msg) | push 전에 포맷/커밋 메시지 문제 차단 |
 
 ---
@@ -54,7 +54,7 @@ JS/TS 프로젝트 세팅은 선택지 홍수입니다: App Router vs Pages Rout
 
 ## 누가 쓰면 안 되는가
 
-- Pages Router를 원하는 경우 → fork 후 Phase 1 스캐폴딩 재작성
+- Pages Router를 원하는 경우 → fork 후 1절(Quick Start) 스캐폴딩 재작성
 - FSD를 원하지 않는 경우 → fork 후 `.agents/rules/architecture.md` 삭제, fsd-lint 플러그인 제거
 - SSG 위주 정적 사이트가 필요한 경우 → Astro 또는 11ty가 더 적합
 - TypeScript를 사용하지 않는 경우 → 이 템플릿은 TS 전용
@@ -65,7 +65,7 @@ JS/TS 프로젝트 세팅은 선택지 홍수입니다: App Router vs Pages Rout
 
 클론 전 세 가지 모두 답하세요:
 
-1. **그린필드 Next.js 15 App Router 프로젝트인가?** 아니라면 — 이 템플릿은 새 프로젝트 스캐폴딩 전용; 기존 코드베이스 마이그레이션은 수동 적용이 필요합니다.
+1. **그린필드 Next.js 16 App Router 프로젝트인가?** 아니라면 — 이 템플릿은 새 프로젝트 스캐폴딩 전용; 기존 코드베이스 마이그레이션은 수동 적용이 필요합니다.
 2. **FSD를 모른다면 배울 의향이 있는가?** (계층 / barrel / 임포트 방향 — 약 하루 학습 분량) 아니라면 — 비-FSD 템플릿을 선택하세요.
 3. **처음부터 strict tsconfig + ESLint 9 flat config + Husky를 쓸 의향이 있는가?** 아니라면 — 더 가벼운 스타터를 사용하세요.
 
@@ -108,7 +108,7 @@ npm run format:check   # Prettier
 npm run typecheck      # tsc --noEmit
 npm run depcruise      # Dependency Cruiser (인프라 격리 + 크로스-feature)
 npm run lint           # ESLint 9
-npm run test           # Jest 29
+npm run test           # Jest (next) 또는 Vitest (ddd-pilot)
 npm run build          # next build
 ```
 

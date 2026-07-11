@@ -2,13 +2,13 @@
 
 [한국어 README](./README.ko.md)
 
-> An opinionated Next.js 15 (App Router) + Feature-Sliced Design template
+> An opinionated Next.js 16 (App Router) + Feature-Sliced Design template
 > designed for LLM coding agents (Claude Code / Cursor) to scaffold from an
 > empty directory to a green GitHub Actions CI — without human intervention
 > mid-setup.
 
-**Empirically verified**: SETUP.md alone drives Claude Code → green CI in 9 min
-([proof run](https://github.com/KWONSEOK02/llm-setup-e2e17-typescript/actions/runs/24565977208)).
+**Empirically verified**: SETUP.md alone drives Claude Code → green CI
+(measured at ~9 min on a throwaway scaffold; the temporary proof repo has since been deleted).
 
 ---
 
@@ -23,13 +23,13 @@ and ships a SETUP.md the LLM agent executes top-to-bottom.
 
 | Layer | Choice | Why (rejected alternatives) |
 |---|---|---|
-| Framework | Next.js 15 App Router | Pages Router is legacy path; App Router + Server Components is the modern default |
+| Framework | Next.js 16 App Router | Pages Router is legacy path; App Router + Server Components is the modern default |
 | Architecture | Feature-Sliced Design (5 layers) | Clean Architecture too abstract for SPA; Atomic Design conflates UI + state |
 | TypeScript | strict mode + `@/*` alias | loose mode masks real bugs; relative imports rot on refactor |
 | Formatter | Prettier (owns all whitespace) | no more "which ESLint rule formats what" debates |
 | Linter | ESLint 9 flat config + `eslint-plugin-fsd-lint` | legacy `.eslintrc.*` is deprecated; fsd-lint enforces layer boundaries automatically |
 | Boundary check | Dependency Cruiser | ESLint rules cannot express "no feature imports Prisma" cleanly |
-| Test | Jest 29 + ts-jest + jsdom | Vitest has a separate ref variant; picked Jest for broader ecosystem |
+| Test | Jest 29 + jsdom (`next`) / Vitest 4 browser mode (`ddd-pilot`) | `next` archetype uses Jest for broad ecosystem; `ddd-pilot` uses Vitest browser mode |
 | Git hooks | Husky 9 (pre-commit + commit-msg) | catch format/commit-message issues before push |
 
 ---
@@ -56,7 +56,7 @@ and ships a SETUP.md the LLM agent executes top-to-bottom.
 
 ## Who should NOT use this
 
-- You want Pages Router (not App Router) → fork, rewrite Phase 1 scaffolding
+- You want Pages Router (not App Router) → fork, rewrite the Section 1 (Quick Start) scaffolding
 - You dislike FSD → fork, delete `.agents/rules/architecture.md`, remove fsd-lint plugin
 - You need an SSG-heavy static site → Astro or 11ty is a better fit
 - You are not using TypeScript → this template is TS-only
@@ -67,7 +67,7 @@ and ships a SETUP.md the LLM agent executes top-to-bottom.
 
 Answer all three before cloning:
 
-1. **Greenfield Next.js 15 App Router project?** If no — this template targets fresh scaffolding; migrating an existing codebase requires manual adaptation.
+1. **Greenfield Next.js 16 App Router project?** If no — this template targets fresh scaffolding; migrating an existing codebase requires manual adaptation.
 2. **Willing to learn FSD if you do not know it?** (layers / barrels / import direction — roughly one day of reading) If no — pick a non-FSD template.
 3. **OK with strict tsconfig + ESLint 9 flat config + Husky from day 0?** If no — use a lighter starter.
 
@@ -111,7 +111,7 @@ npm run format:check   # Prettier
 npm run typecheck      # tsc --noEmit
 npm run depcruise      # Dependency Cruiser (infra isolation + cross-feature)
 npm run lint           # ESLint 9
-npm run test           # Jest 29
+npm run test           # Jest (next) or Vitest (ddd-pilot)
 npm run build          # next build
 ```
 

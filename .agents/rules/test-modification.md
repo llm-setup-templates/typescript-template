@@ -104,6 +104,7 @@ When adding a new feature (component, API route, utility):
 
 For three concrete walkthroughs (add GET route, change signature,
 refactor with unchanged behavior) showing how this rules file maps to
-actual code/test diffs, see `examples/guides/test-modification-scenarios.md`.
+actual code/test diffs, see `examples/guides/test-modification-scenarios.md` in the
+upstream llm-setup-templates/typescript-template repo (not shipped into scaffolded projects).
 Copy the scenarios into your project's internal docs if you want them
 as a living reference.

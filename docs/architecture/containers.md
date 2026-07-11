@@ -20,7 +20,7 @@ flowchart TB
     User([User])
 
     subgraph System["YOUR_SYSTEM"]
-        Web["Web App<br/>(Next.js 15)<br/>user-facing SSR"]
+        Web["Web App<br/>(Next.js 16)<br/>user-facing SSR"]
         API["API<br/>(Next.js Route Handlers)<br/>request validation, business logic"]
         Worker["Background Worker<br/>(optional)<br/>scheduled / async tasks"]
         DB[("Database<br/>(Postgres)<br/>persistent state")]
@@ -53,7 +53,7 @@ One row per box in the diagram.
 
 | Container | Technology | Responsibility |
 |---|---|---|
-| Web App | Next.js 15 App Router | SSR pages, form submissions, minimal client state |
+| Web App | Next.js 16 App Router | SSR pages, form submissions, minimal client state |
 | API | Next.js Route Handlers | Request validation (Zod), orchestrate business logic, call DB + external APIs |
 | Background Worker | (choose: BullMQ / Inngest / native cron) | Scheduled jobs, long-running tasks |
 | Database | Postgres (Supabase / RDS / etc.) | Persistent state, transactional integrity |

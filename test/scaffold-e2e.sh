@@ -221,6 +221,11 @@ esac
 # .claude/ preserved (derived repo agent rules)
 test -d .agents/rules || { echo "FAIL: .agents/rules missing"; exit 1; }
 
+# RTM checker inherited by the generated project (PR 3 vendored recipe):
+# rtm-lint.sh + rtm.yml survive while validate.sh/validate.yml are removed.
+test -f scripts/rtm-lint.sh       || { echo "FAIL: scripts/rtm-lint.sh not inherited"; exit 1; }
+test -f .github/workflows/rtm.yml || { echo "FAIL: rtm.yml not inherited"; exit 1; }
+
 # 4. Placeholder leak (CRITICAL -- code/config files)
 LEAKS=$(grep -rE '\{\{[A-Z_]+\}\}' . \
   --include="*.ts" --include="*.tsx" --include="*.js" --include="*.mjs" \
